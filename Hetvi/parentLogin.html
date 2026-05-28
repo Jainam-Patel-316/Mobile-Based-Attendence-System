@@ -1,0 +1,103 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Portal - CAIT</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 p-4 min-h-screen flex items-center justify-center">
+
+    <div id="loginPage" class="bg-white p-6 rounded-xl shadow border border-slate-200 w-full max-w-sm text-center">
+        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">College of Agricultural Information Technology</h2>
+        <form onsubmit="authPortal(event)" class="space-y-3">
+            <input type="text" id="enrollInput" maxlength="10" placeholder="enrollment number" class="w-full p-2 border rounded font-mono text-center" required>
+            <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded transition">Sign In</button>
+        </form>
+    </div>
+
+    <div id="mainDashboard" class="hidden w-full max-w-5xl self-start space-y-4">
+        <header class="bg-white border rounded-xl p-4 flex justify-between items-center shadow-sm">
+            <div>
+                <h1 id="userEnroll" class="text-xl font-black font-mono"></h1>
+                <p id="userYear" class="text-xs text-slate-400"></p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span id="semBadge" class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-1 rounded-full"></span>
+                <button onclick="logout()" class="bg-slate-200 hover:bg-rose-600 hover:text-white text-xs font-medium px-3 py-1.5 rounded transition">Log Out</button>
+            </div>
+        </header>
+        <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="coursesGrid"></main>
+    </div>
+
+    <script>
+        
+        const syllabus = {
+            1: [["FC-I","Deeksharambh (Induction)","act"],["SEC-I","Fundamentals of Computers","both"],["SEC-II","Intro to Web Scripting","both"],["AIT 111","Programming in C","both"],["AGRI 111","Fundamentals of Agronomy","both"],["AGRI 112","Fundamentals of Horticulture","both"],["MATH 111","Engineering Mathematics – I","th"],["MDC-I","Farming Based Livelihoods","th"],["AEC-I","Communication Skills","th"],["AEC-II","NSS-I","act"],["AEC-III","NCC-I","act"]],
+            2: [["SEC-III","Software Workshop","pr"],["SEC-IV","Web Development Workshop","pr"],["AIT 121","Data Structure Through C","both"],["AGRI 121","Fundamentals of Soil Science","both"],["AGRI 122","Fundamentals of Entomology","both"],["MATH 121","Engineering Mathematics -II","th"],["VAC-I","Environmental Studies","th"],["AEC-IV","Personality Development","th"],["AEC-V","NSS-II","act"],["AEC-VI","NCC-II","act"]],
+            3: [["SEC-V","Web Dev Using PHP","both"],["AIT 211","Object Oriented Programming","both"],["AIT 212","DBMS","both"],["AIT 213","Computer Org & Architecture","th"],["AGRI 211","Fundamentals of Plant Pathology","both"],["AGRI 212","Fundamentals of Extension Ed","th"],["EI 211","IoT Electronics & Inst.","both"],["MDC–II","Entrepreneurship Dev","th"],["AEC-VII","Yoga & Meditation","act"],["AEC-VIII","NSS-III","act"],["AEC-IX","NCC-III","act"]],
+            4: [["SEC-VI","Web Development in .NET","both"],["AIT 221","Computer Networks","both"],["AIT 222","Python Programming","both"],["AIT 223","Software Engineering","th"],["AGRI 221","Agricultural Statistics","both"],["AGRI 222","Intro to Agro-meteorology","th"],["AGRI 223","Agricultural Economics","th"],["EI 221","Embedded & IoT System","both"],["AEC-X","NSS-IV","act"],["AEC-XI","NCC-IV","act"]],
+            5: [["AIT 311","Advanced Web Dev in .NET","both"],["AIT 312","Operating Systems","both"],["AIT 313","Image Processing","both"],["AGRI 311","Geoinformatics & Remote Sensing","both"],["AGRI 312","Agricultural Biotechnology","th"],["MDC-III","Agri Informatics & AI","both"],["MDC-IV","Agricultural Marketing","th"],["PRJT 311","Mini Project – I","act"],["ST 311","Study Tour (10-14 Days)","act"]],
+            6: [["AIT 321","Digital Forensics","th"],["AIT 322","Advanced AI","both"],["AIT 323","Mobile App Development","both"],["AIT 324","Data Analysis with MATLAB","pr"],["AIT 325","Theory of Computation","th"],["AGRI 321","Introductory Bioinformatics","both"],["AGRI 322","Agri Finance & Cooperation","th"],["AGRI 323","Practices of Natural Farming","act"],["PRJT 321","Mini Project – II","act"]],
+            7: [["AIT 411","Elective Course - I","both"],["AIT 412","Elective Course - II","both"],["AGRI 411","Elective Course - III","both"],["AGRI 412","Elective Course - IV","th"],["PRJT 411","In House Project–III","act"],["SMNR 411","Seminar","act"]],
+            8: [["PRJT 421","Project cum Internship","act"]]
+        };
+
+        //connect database here
+        function getAttendance(code, type) {
+            let hash = 0; for (let i = 0; i < code.length; i++) hash = code.charCodeAt(i) + ((hash << 5) - hash);
+            let total = Math.abs((hash % 12) + 12), att = Math.abs((hash % (total - 3))) + 4;
+            let pct = Math.round((att / (att > total ? att : total)) * 100);
+            return `<div class="p-2 bg-slate-50 rounded">
+                <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">${type}</p>
+                <p class="text-xl font-black ${pct >= 75 ? 'text-emerald-600' : 'text-amber-600'}">${pct}%</p>
+                <p class="text-[11px] text-slate-500">${att}/${total} Cards</p>
+            </div>`;
+        }
+
+        function authPortal(e) {
+            e.preventDefault();
+            const val = document.getElementById('enrollInput').value.trim();
+            if (val.length !== 10 || isNaN(val)) return alert("Enter valid 10 digits");
+
+            
+            const admYear = 2000 + parseInt(val.substring(5, 7), 10);
+            const now = new Date();
+            let sem = (now.getFullYear() - admYear) * 2 + (now.getMonth() >= 7 ? 1 : 0);
+            sem = Math.max(1, Math.min(8, sem));
+
+            
+            document.getElementById('loginPage').classList.add('hidden');
+            const dash = document.getElementById('mainDashboard');
+            dash.classList.remove('hidden');
+            dash.className = "w-full max-w-5xl space-y-4"; 
+
+            document.getElementById('userEnroll').innerText = val;
+            document.getElementById('userYear').innerText = `Admission Year: ${admYear}`;
+            document.getElementById('semBadge').innerText = `Semester ${sem}`;
+
+            
+            const grid = document.getElementById('coursesGrid');
+            grid.innerHTML = (syllabus[sem] || []).map(c => {
+                let cards = '';
+                if (c[2] === 'both' || c[2] === 'th') cards += getAttendance(c[0] + 'T', 'Theory');
+                if (c[2] === 'both' || c[2] === 'pr') cards += getAttendance(c[0] + 'P', 'Practical');
+                if (c[2] === 'act') cards += getAttendance(c[0] + 'A', 'Activity');
+
+                return `<div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <div class="mb-2">
+                        <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">${c[0]}</span>
+                        <h3 class="font-bold text-sm text-slate-900 mt-1 leading-tight h-10 overflow-hidden line-clamp-2">${c[1]}</h3>
+                    </div>
+                    <div class="grid ${c[2] === 'both' ? 'grid-cols-2' : 'grid-cols-1'} gap-2 mt-1">${cards}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function logout() {
+            document.getElementById('mainDashboard').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('enrollInput').value = "";
+        }
+    </script>
+</body>
+</html>
