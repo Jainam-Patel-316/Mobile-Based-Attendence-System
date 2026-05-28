@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Portal - CAIT</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 p-4 min-h-screen flex items-center justify-center relative">
+
+    <div id="loginPage" class="bg-white p-6 rounded-xl shadow border border-slate-200 w-full max-w-sm z-10 transition-all duration-300">
+        <h2 class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-5">College of Agricultural Information Technology</h2>
+        
+        <form onsubmit="authPortal(event)" class="space-y-4">
+            <div>
+                <label for="enrollInput" class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Enrollment Number</label>
+                <input type="text" id="enrollInput" maxlength="10" placeholder="3060820000" class="w-full p-2 border rounded font-mono text-center" required>
+            </div>
+
+            <div>
+                <label for="passwordInput" class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Password</label>
+                <input type="password" id="passwordInput" placeholder="Enter" class="w-full p-2 border rounded font-mono text-center" required>
+            </div>
+
+            <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded transition mt-2">Sign In</button>
+        </form>
+    </div>
+
+    <div id="mainDashboard" class="hidden w-full max-w-5xl self-start space-y-4 z-10 transition-all duration-300">
+        <header class="bg-white border rounded-xl p-4 flex justify-between items-center shadow-sm">
+            <div>
+                <h1 id="userEnroll" class="text-xl font-black font-mono"></h1>
+                <p id="userYear" class="text-xs text-slate-400"></p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span id="semBadge" class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-1 rounded-full"></span>
+                <button onclick="logout()" class="bg-slate-200 hover:bg-rose-600 hover:text-white text-xs font-medium px-3 py-1.5 rounded transition">Log Out</button>
+            </div>
+        </header>
+        <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="coursesGrid"></main>
+    </div>
+
+    <button id="scanFloatingBtn" onclick="openScanner()" class="hidden fixed bottom-6 right-6 z-30 bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-lg flex items-center justify-center transition-transform transform hover:scale-105 cursor-pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3h2.25M15 3h2.25M3 6.75V9m18-2.25V9M3 15v2.25M21 15v2.25M6.75 21h2.25M15 21h2.25M12 7.5h.008v.008H12V7.5zM12 12h.008v.008H12V12zM12 16.5h.008v.008H12v-.008z" />
+        </svg>
+    </button>
+
+    <div id="scannerOverlay" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-md z-40 flex flex-col items-center justify-center p-4">
+        <div class="relative bg-white p-4 rounded-2xl shadow-2xl max-w-sm w-full flex flex-col items-center">
+            
+            <div class="relative w-64 h-64 rounded-xl overflow-hidden border-2 border-indigo-500 bg-black flex items-center justify-center">
+                <video id="scannerVideo" class="absolute w-full h-full object-cover" playsinline></video>
+                <div class="absolute inset-8 border border-dashed border-white/50 rounded pointer-events-none animate-pulse"></div>
+            </div>
+
+            <p class="text-sm font-medium text-slate-700 mt-4 text-center">Center the QR code inside the box</p>
+            
+            <button onclick="closeScanner()" class="mt-4 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-lg transition tracking-wide uppercase">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const syllabus = {
+            1: [["FC-I","Deeksharambh (Induction)","act"],["SEC-I","Fundamentals of Computers","both"],["SEC-II","Intro to Web Scripting","both"],["AIT 111","Programming in C","both"],["AGRI 111","Fundamentals of Agronomy","both"],["AGRI 112","Fundamentals of Horticulture","both"],["MATH 111","Engineering Mathematics – I","th"],["MDC-I","Farming Based Livelihoods","th"],["AEC-I","Communication Skills","th"],["AEC-II","NSS-I","act"],["AEC-III","NCC-I","act"]],
+            2: [["SEC-III","Software Workshop","pr"],["SEC-IV","Web Development Workshop","pr"],["AIT 121","Data Structure Through C","both"],["AGRI 121","Fundamentals of Soil Science","both"],["AGRI 122","Fundamentals of Entomology","both"],["MATH 121","Engineering Mathematics -II","th"],["VAC-I","Environmental Studies","th"],["AEC-IV","Personality Development","th"],["AEC-V","NSS-II","act"],["AEC-VI","NCC-II","act"]],
+            3: [["SEC-V","Web Dev Using PHP","both"],["AIT 211","Object Oriented Programming","both"],["AIT 212","DBMS","both"],["AIT 213","Computer Org & Architecture","th"],["AGRI 211","Fundamentals of Plant Pathology","both"],["AGRI 212","Fundamentals of Extension Ed","th"],["EI 211","IoT Electronics & Inst.","both"],["MDC–II","Entrepreneurship Dev","th"],["AEC-VII","Yoga & Meditation","act"],["AEC-VIII","NSS-III","act"],["AEC-IX","NCC-III","act"]],
+            4: [["SEC-VI","Web Development in .NET","both"],["AIT 221","Computer Networks","both"],["AIT 222","Python Programming","both"],["AIT 223","Software Engineering","th"],["AGRI 221","Agricultural Statistics","both"],["AGRI 222","Intro to Agro-meteorology","th"],["AGRI 223","Agricultural Economics","th"],["EI 221","Embedded & IoT System","both"],["AEC-X","NSS-IV","act"],["AEC-XI","NCC-IV","act"]],
+            5: [["AIT 311","Advanced Web Dev in .NET","both"],["AIT 312","Operating Systems","both"],["AIT 313","Image Processing","both"],["AGRI 311","Geoinformatics & Remote Sensing","both"],["AGRI 312","Agricultural Biotechnology","th"],["MDC-III","Agri Informatics & AI","both"],["MDC-IV","Agricultural Marketing","th"],["PRJT 311","Mini Project – I","act"],["ST 311","Study Tour (10-14 Days)","act"]],
+            6: [["AIT 321","Digital Forensics","th"],["AIT 322","Advanced AI","both"],["AIT 323","Mobile App Development","both"],["AIT 324","Data Analysis with MATLAB","pr"],["AIT 325","Theory of Computation","th"],["AGRI 321","Introductory Bioinformatics","both"],["AGRI 322","Agri Finance & Cooperation","th"],["AGRI 323","Practices of Natural Farming","act"],["PRJT 321","Mini Project – II","act"]],
+            7: [["AIT 411","Elective Course - I","both"],["AIT 412","Elective Course - II","both"],["AGRI 411","Elective Course - III","both"],["AGRI 412","Elective Course - IV","th"],["PRJT 411","In House Project–III","act"],["SMNR 411","Seminar","act"]],
+            8: [["PRJT 421","Project cum Internship","act"]]
+        };
+
+        let videoStream = null;
+        let animationFrameId = null;
+      //connect database here
+        function getAttendance(code, type) {
+            let hash = 0; for (let i = 0; i < code.length; i++) hash = code.charCodeAt(i) + ((hash << 5) - hash);
+            let total = Math.abs((hash % 12) + 12), att = Math.abs((hash % (total - 3))) + 4;
+            let pct = Math.round((att / (att > total ? att : total)) * 100);
+            return `<div class="p-2 bg-slate-50 rounded">
+                <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">${type}</p>
+                <p class="text-xl font-black ${pct >= 75 ? 'text-emerald-600' : 'text-amber-600'}">${pct}%</p>
+                <p class="text-[11px] text-slate-500">${att}/${total} Cards</p>
+            </div>`;
+        }
+
+        function authPortal(e) {
+            e.preventDefault();
+            const val = document.getElementById('enrollInput').value.trim();
+            const passVal = document.getElementById('passwordInput').value.trim();
+            const numVal = parseInt(val, 10);
+
+            if (isNaN(numVal) || numVal < 3060800000 || numVal > 3060899999 || val.length !== 10) {
+                return alert("Invalid Enrollment! Must be between 3060800000 and 3060899999.");
+            }
+
+            const admYear = 2000 + parseInt(val.substring(5, 7), 10);
+            const now = new Date();
+            let sem = (now.getFullYear() - admYear) * 2 + (now.getMonth() >= 7 ? 1 : 0);
+            sem = Math.max(1, Math.min(8, sem));
+
+            const correctPassword = `${sem}`;
+            if (passVal !== correctPassword) {
+                return alert(`Incorrect Password for your semester profile!`);
+            }
+
+            document.getElementById('loginPage').classList.add('hidden');
+            const dash = document.getElementById('mainDashboard');
+            dash.classList.remove('hidden');
+            dash.className = "w-full max-w-5xl space-y-4";
+
+        
+            document.getElementById('scanFloatingBtn').classList.remove('hidden');
+
+            document.getElementById('userEnroll').innerText = val;
+            document.getElementById('userYear').innerText = `Admission Year: ${admYear}`;
+            document.getElementById('semBadge').innerText = `Semester ${sem}`;
+
+            const grid = document.getElementById('coursesGrid');
+            grid.innerHTML = (syllabus[sem] || []).map(c => {
+                let cards = '';
+                if (c[2] === 'both' || c[2] === 'th') cards += getAttendance(c[0] + 'T', 'Theory');
+                if (c[2] === 'both' || c[2] === 'pr') cards += getAttendance(c[0] + 'P', 'Practical');
+                if (c[2] === 'act') cards += getAttendance(c[0] + 'A', 'Activity');
+
+                return `<div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <div class="mb-2">
+                        <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">${c[0]}</span>
+                        <h3 class="font-bold text-sm text-slate-900 mt-1 leading-tight h-10 overflow-hidden line-clamp-2">${c[1]}</h3>
+                    </div>
+                    <div class="grid ${c[2] === 'both' ? 'grid-cols-2' : 'grid-cols-1'} gap-2 mt-1">${cards}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function logout() {
+            closeScanner();
+            document.getElementById('mainDashboard').classList.add('hidden');
+            document.getElementById('scanFloatingBtn').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('enrollInput').value = "";
+            document.getElementById('passwordInput').value = "";
+        }
+
+        
+    //backend in node.js
+        async function openScanner() {
+            const overlay = document.getElementById('scannerOverlay');
+            const video = document.getElementById('scannerVideo');
+            
+            overlay.classList.remove('hidden');
+
+            
+            document.getElementById('mainDashboard').classList.add('blur-sm');
+
+            try {
+                
+                videoStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "environment" } 
+                });
+                video.srcObject = videoStream;
+                video.setAttribute("playsinline", true);
+                video.play();
+                
+                
+                animationFrameId = requestAnimationFrame(tickScanner);
+            } catch (err) {
+                alert("Camera access denied or unavailable: " + err.message);
+                closeScanner();
+            }
+        }
+
+        function closeScanner() {
+            document.getElementById('scannerOverlay').classList.add('hidden');
+            document.getElementById('mainDashboard').classList.remove('blur-sm');
+
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+        }
+
+        function tickScanner() {
+            const video = document.getElementById('scannerVideo');
+            
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                
+                const canvas = document.createElement("canvas");
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext("2d");
+                
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                
+                
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+
+                if (code) {
+                
+                    alert("QR Code Successfully Found:\n" + code.data);
+                    closeScanner();
+                    return;
+                }
+            }
+            
+            animationFrameId = requestAnimationFrame(tickScanner);
+        }
+    </script>
+</body>
+</html>
