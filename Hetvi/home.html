@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #333333;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Top Bar Navigation */
+        .top-bar {
+            height: 60px;
+            background-color: #002060; /* Navy Blue */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+        }
+
+        /* Container for Menu Button and Dynamic Header Name */
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name-display {
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* 3 Lines Menu Button */
+        .menu-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 25px;
+            height: 18px;
+        }
+
+        .menu-btn span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: #ffffff; 
+            border-radius: 2px;
+        }
+
+        /* Profile White Circle */
+        .profile-icon {
+            width: 32px;
+            height: 32px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            background-color: transparent;
+        }
+
+        /* Sidebar Container */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -260px; 
+            width: 260px;
+            height: 100%;
+            background-color: #ffffff;
+            border-right: 2px solid #002060;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding-top: 60px;
+            transition: left 0.3s ease;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-menu-items {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-item {
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #002060;
+            cursor: pointer;
+            width: 100%;
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        .sidebar-item.active {
+            background-color: #002060;
+            color: #ffffff;
+        }
+
+        .logout-btn {
+            border-top: 1px solid #eeeeee;
+            border-bottom: none;
+        }
+
+        /* Background overlay tint */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 32, 96, 0.2);
+            z-index: 150;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        /* Main Welcome Content Area */
+        .main-content {
+            margin-top: 100px;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .main-content h1 {
+            color: #002060;
+            margin-bottom: 10px;
+        }
+
+        .session-status {
+            margin-top: 20px; 
+            font-size: 18px;
+            color: #002060; 
+            font-weight: bold;
+        }
+
+        /* Action Buttons Grid in Dashboard */
+        .dashboard-actions {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .action-card-btn {
+            background-color: #ffffff;
+            color: #002060;
+            border: 2px solid #002060;
+            padding: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-card-btn:hover {
+            background-color: #002060;
+            color: #ffffff;
+        }
+
+        
+        .bottom-left-info-zone {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+            z-index: 90;
+        }
+
+        
+        .shortcut-status-text {
+            font-size: 13px;
+            color: #002060;
+            font-weight: bold;
+            background-color: rgba(0, 32, 96, 0.08);
+            padding: 6px 12px;
+            border-radius: 4px;
+            border-left: 3px solid #002060;
+            display: none;
+        }
+
+        
+        .scanner-shortcut-btn {
+            background-color: #002060;
+            color: #ffffff;
+            border: none;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 32, 96, 0.3);
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scanner-shortcut-btn:hover {
+            background-color: #00133a;
+        }
+
+        
+        .admin-add-btn {
+            background-color: #002060;
+            color: #ffffff;
+            border: none;
+            width: 50px;
+            height: 50px;
+            font-size: 28px;
+            font-weight: bold;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 32, 96, 0.3);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .admin-add-btn:hover {
+            background-color: #00133a;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="header-left">
+            <button class="menu-btn" id="menuBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="user-name-display" id="headerNameDisplay"></div>
+        </div>
+        
+        <div class="profile-icon" id="profileBtn" title="Go to Login"></div>
+    </header>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-menu-items" id="sidebarMenuContainer">
+            <button class="sidebar-item active" id="homeBtn">HOME</button>
+            </div>
+        <button class="sidebar-item logout-btn" id="logoutBtn">Logout &rarr;</button>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+
+    <main class="main-content">
+        <h1>HOME PAGE</h1>
+        <p>Simple navy blue and white design system.</p>
+        <div class="session-status" id="sessionDisplay">Loading session information...</div>
+
+        <div class="dashboard-actions" id="dashboardActionsGrid"></div>
+    </main>
+
+    <div class="bottom-left-info-zone">
+        <div class="shortcut-status-text" id="shortcutStatusText"></div>
+        
+        <button class="scanner-shortcut-btn" id="qrScannerShortcutBtn">
+             QR 
+        </button>
+
+        <button class="admin-add-btn" id="adminAddBtn" title="Add Records">+</button>
+    </div>
+
+    <script>
+        const menuBtn = document.getElementById('menuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const profileBtn = document.getElementById('profileBtn');
+        const homeBtn = document.getElementById('homeBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const sessionDisplay = document.getElementById('sessionDisplay');
+        const headerNameDisplay = document.getElementById('headerNameDisplay');
+        const sidebarMenuContainer = document.getElementById('sidebarMenuContainer');
+        const dashboardActionsGrid = document.getElementById('dashboardActionsGrid');
+        
+        const shortcutStatusText = document.getElementById('shortcutStatusText');
+        const qrScannerShortcutBtn = document.getElementById('qrScannerShortcutBtn');
+        const adminAddBtn = document.getElementById('adminAddBtn');
+
+        
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.add('open');
+            overlay.classList.add('show');
+        });
+
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        }
+
+        overlay.addEventListener('click', closeSidebar);
+        homeBtn.addEventListener('click', closeSidebar);
+
+        profileBtn.addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+
+        
+        function updateDashboard() {
+            const flag = sessionStorage.getItem('flag');
+            const fetchedUserRaw = sessionStorage.getItem('fetched_user');
+            let userData = null;
+
+            if (fetchedUserRaw) {
+                try {
+                    userData = JSON.parse(fetchedUserRaw);
+                } catch(e) {
+                    console.error("Error parsing user payload context", e);
+                }
+            }
+
+            
+            headerNameDisplay.innerText = "";
+            shortcutStatusText.style.display = "none";
+            shortcutStatusText.innerText = "";
+            qrScannerShortcutBtn.style.display = "none";
+            adminAddBtn.style.display = "none";
+            dashboardActionsGrid.innerHTML = "";
+
+    
+            const structuralItems = sidebarMenuContainer.querySelectorAll('.dynamic-item');
+            structuralItems.forEach(item => item.remove());
+
+            if (flag) {
+                sessionDisplay.innerHTML = `Active Session: <span style="color: green;">${flag.toUpperCase()}</span>`;
+                
+                if (flag === 'admin login') {
+                    headerNameDisplay.innerText = "Admin Portal";
+
+                    
+                    createSidebarItem("Manage Students", "admin_students.html");
+                    createSidebarItem("Manage Faculty", "admin_faculty.html");
+
+                    
+                    adminAddBtn.style.display = "flex";
+
+                    
+                    
+                } 
+                
+                else if (flag === 'parent login') {
+                    const studentName = userData ? (userData.name || "Student Record") : "Fetched Student";
+                    headerNameDisplay.innerText = `Parent of: ${studentName}`;
+
+                    createSidebarItem("View Attendance", "attendance.html");
+
+                    shortcutStatusText.innerText = `Viewing tracking profile metrics.`;
+                    shortcutStatusText.style.display = "block";
+
+                    
+                } 
+                
+                else if (flag === 'student login') {
+                    const studentName = userData ? (userData.name || "Student") : "Student Account";
+                    headerNameDisplay.innerText = studentName;
+
+                    createSidebarItem("My Attendance", "attendance.html");
+
+                    
+                    qrScannerShortcutBtn.style.display = "flex";
+
+                    
+                    
+                } 
+                
+                else if (flag === 'faculty login') {
+                    headerNameDisplay.innerText = "Faculty Room";
+
+                    createSidebarItem("Manage Attendance", "attendance.html");
+
+                    
+                }
+
+            } else {
+                sessionDisplay.innerHTML = `Status: <span style="color: red;">Guest Mode (Not Logged In)</span>`;
+                headerNameDisplay.innerText = "Guest Access";
+                
+                
+                
+            }
+        }
+
+    
+        function createSidebarItem(text, targetUrl) {
+            const btn = document.createElement('button');
+            btn.className = "sidebar-item dynamic-item";
+            btn.innerText = text;
+            btn.addEventListener('click', () => {
+                closeSidebar();
+                navigateTo(targetUrl);
+            });
+            sidebarMenuContainer.appendChild(btn);
+        }
+
+        
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        
+        qrScannerShortcutBtn.addEventListener('click', () => {
+            navigateTo('scanner.html');
+        });
+
+        adminAddBtn.addEventListener('click', () => {
+            navigateTo('admin_create_records.html'); 
+        });
+
+        
+        logoutBtn.addEventListener('click', () => {
+            sessionStorage.clear();
+            localStorage.clear();
+
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i];
+                const eqPos = cookie.indexOf("=");
+                const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+                document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+            }
+
+            alert("Session cleared successfully!");
+            closeSidebar();
+            window.location.reload();
+        });
+
+        
+        updateDashboard();
+    </script>
+</body>
+</html>
