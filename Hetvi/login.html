@@ -1,0 +1,244 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            border: 2px solid #002060;
+            border-radius: 6px;
+            padding: 25px;
+            background-color: #ffffff;
+        }
+
+        h2 {
+            color: #002060;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        /* Layout matches your hand drawn grid */
+        .role-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .role-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            color: #002060;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .role-option input {
+            accent-color: #002060;
+            width: 18px;
+            height: 18px;
+        }
+
+        .input-group {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .input-group.active {
+            display: flex;
+        }
+
+        label {
+            color: #002060;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input[type="text"], input[type="number"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #002060;
+            border-radius: 4px;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #002060;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h2>Login</h2>
+
+        <div class="role-grid">
+            <label class="role-option"><input type="radio" name="role" value="student"> Student</label>
+            <label class="role-option"><input type="radio" name="role" value="parent"> Parent</label>
+            <label class="role-option"><input type="radio" name="role" value="faculty"> Faculty</label>
+            <label class="role-option"><input type="radio" name="role" value="admin"> Admin</label>
+        </div>
+
+        <div class="input-group" id="parent-group">
+            <label>Parent/Student Reference Number</label>
+            <input type="number" id="parentInput" oninput="if(this.value.length > 10) this.value = this.value.slice(0,10);" placeholder="Max 10 digits entries">
+        </div>
+
+        <div class="input-group" id="student-group">
+            <label>Enrollment Number</label>
+            <input type="number" id="studentEnroll" placeholder="e.g. 3060821045">
+            <label>Password</label>
+            <input type="password" id="studentPass" placeholder="•••">
+        </div>
+
+        <div class="input-group" id="faculty-group">
+            <label>Faculty Username</label>
+            <input type="text" id="facultyUser" placeholder="Username">
+            <label>Password</label>
+            <input type="password" id="facultyPass" placeholder="Password">
+        </div>
+
+        <div class="input-group" id="admin-group">
+            <label>Admin Username</label>
+            <input type="text" id="adminUser" placeholder="Username">
+            <label>Password</label>
+            <input type="password" id="adminPass" placeholder="Password">
+        </div>
+
+        <button class="submit-btn" id="loginSubmitBtn">LOG IN</button>
+    </div>
+
+    <script>
+       // connect database 
+        const db_stuenroll = [{
+                enrollment: "3060821045", 
+                parent_ref: "9876543210",
+                name: "John Doe"
+            }];
+        const db_facultyuser = [{ username: "faculty1", password: "password123" }];
+        const db_adminuser = [{username: "admin", password: "adminpassword"}];
+
+        const roles = document.querySelectorAll('input[name="role"]');
+        const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+
+
+        roles.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                document.getElementById('parent-group').classList.remove('active');
+                document.getElementById('student-group').classList.remove('active');
+                document.getElementById('faculty-group').classList.remove('active');
+                document.getElementById('admin-group').classList.remove('active');
+
+                document.getElementById(`${e.target.value}-group`).classList.add('active');
+                loginSubmitBtn.style.display = "block";
+            });
+        });
+
+
+        loginSubmitBtn.addEventListener('click', () => {
+            const selectedRole = document.querySelector('input[name="role"]:checked').value;
+
+            if (selectedRole === 'parent') {
+                const val = document.getElementById('parentInput').value;
+                const matchFound = db_stuenroll.find(s => s.parent_ref === val || s.enrollment === val);
+
+                if (matchFound) {
+                    sessionStorage.setItem('flag', 'parent login');
+                    sessionStorage.setItem('fetched_user', JSON.stringify(matchFound));
+                    window.location.href = 'home.html';
+                } else {
+                    alert("No matching record found in stuenroll system registry.");
+                }
+            }
+
+            else if (selectedRole === 'student') {
+                const enrollInput = document.getElementById('studentEnroll').value;
+                const passInput = document.getElementById('studentPass').value;
+                const enrollNum = parseInt(enrollInput, 10);
+                //password of student 
+                if (enrollInput) {
+                    const admissionYearDigits = enrollInput.substring(5, 7);
+                    const expectedPass = "20" + admissionYearDigits;
+
+                    if (passInput === expectedPass) {
+                        const matchFound = db_stuenroll.find(s => s.enrollment === enrollInput);
+                        if (matchFound) {
+                            sessionStorage.setItem('flag', 'student login');
+                            sessionStorage.setItem('fetched_user', JSON.stringify(matchFound));
+                            window.location.href = 'home.html';
+                        } else {
+                            alert("Valid syntax format, but record not registered in registry.");
+                        }
+                    } else {
+                        alert("Authentication error: Password doesn't match batch criteria.");
+                    }
+                } else {
+                    alert("Out of bounds: Entry falls outside validation range.");
+                }
+            }
+
+            else if (selectedRole === 'faculty') {
+                const u = document.getElementById('facultyUser').value;
+                const p = document.getElementById('facultyPass').value;
+                const valid = db_facultyuser.find(f => f.username === u && f.password === p);
+
+                if (valid) {
+                    sessionStorage.setItem('flag', 'faculty login');
+                    window.location.href = 'home.html';
+                } else {
+                    alert("Invalid Faculty credentials.");
+                }
+            }
+
+            else if (selectedRole === 'admin') {
+                const u = document.getElementById('adminUser').value;
+                const p = document.getElementById('adminPass').value;
+                const valid = db_adminuser.find(a => a.username === u && a.password === p);
+
+                if (valid) {
+                    sessionStorage.setItem('flag', 'admin login');
+                    window.location.href = 'home.html';
+                } else {
+                    alert("Invalid Administrator credentials.");
+                }
+            }
+        });
+    </script>
+</body>
+</html>
