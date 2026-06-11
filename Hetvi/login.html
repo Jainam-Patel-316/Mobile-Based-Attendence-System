@@ -114,8 +114,8 @@
         </div>
 
         <div class="input-group" id="parent-group">
-            <label>Parent/Student Reference Number</label>
-            <input type="number" id="parentInput" oninput="if(this.value.length > 10) this.value = this.value.slice(0,10);" placeholder="Max 10 digits entries">
+            <label>Enrollment Number</label>
+            <input type="number" id="parentInput" oninput="if(this.value.length > 10) this.value = this.value.slice(0,10);" placeholder="e.g. 3060821045">
         </div>
 
         <div class="input-group" id="student-group">
@@ -143,7 +143,7 @@
     </div>
 
     <script>
-        // DATABASE 
+        // DATABASE SETUP 
         function initDatabase() {
             if (!localStorage.getItem('info_stu')) {
                 const defaultStudents = [
@@ -179,11 +179,11 @@
                 localStorage.setItem('info_config_welcome', 'cait');
             }
         }
-        
+
         initDatabase();
 
-        // Database Access Reference Arrays
-        const db_stuenroll = JSON.parse(localStorage.getItem('info_stu'));
+        // database tables
+        const db_stuenroll = JSON.getStorageItem ? [] : JSON.parse(localStorage.getItem('info_stu'));
         const db_facultyuser = JSON.parse(localStorage.getItem('info_fac'));
         const db_adminuser = [{ username: "admin", password: "adminpassword" }];
 
@@ -207,9 +207,13 @@
             if(!roleOption) return;
             const selectedRole = roleOption.value;
 
+            // table data arrays
+            const freshStu = JSON.parse(localStorage.getItem('info_stu'));
+            const freshFac = JSON.parse(localStorage.getItem('info_fac'));
+
             if (selectedRole === 'parent') {
                 const val = document.getElementById('parentInput').value;
-                const matchFound = db_stuenroll.find(s => s.parent_ref === val || s.enrollment === val);
+                const matchFound = freshStu.find(s => s.parent_ref === val || s.enrollment === val);
 
                 if (matchFound) {
                     sessionStorage.setItem('flag', 'parent login');
@@ -229,7 +233,7 @@
                     const expectedPass = "20" + admissionYearDigits;
 
                     if (passInput === expectedPass) {
-                        const matchFound = db_stuenroll.find(s => s.enrollment === enrollInput);
+                        const matchFound = freshStu.find(s => s.enrollment === enrollInput);
                         if (matchFound) {
                             sessionStorage.setItem('flag', 'student login');
                             sessionStorage.setItem('fetched_user', JSON.stringify(matchFound));
@@ -248,7 +252,7 @@
             else if (selectedRole === 'faculty') {
                 const u = document.getElementById('facultyUser').value;
                 const p = document.getElementById('facultyPass').value;
-                const valid = db_facultyuser.find(f => f.username === u && f.password === p);
+                const valid = freshFac.find(f => f.username === u && f.password === p);
 
                 if (valid) {
                     sessionStorage.setItem('flag', 'faculty login');
