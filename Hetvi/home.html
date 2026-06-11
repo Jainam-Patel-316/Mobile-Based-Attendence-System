@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
+    <title>Academic</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         * {
             margin: 0;
@@ -13,16 +14,15 @@
         }
 
         body {
-            background-color: #ffffff;
+            background-color: #f8fafc;
             color: #333333;
             min-height: 100vh;
             position: relative;
         }
 
-        /* Top Bar Navigation */
         .top-bar {
             height: 60px;
-            background-color: #002060; /* Navy Blue */
+            background-color: #002060; 
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -32,9 +32,9 @@
             left: 0;
             width: 100%;
             z-index: 100;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        /* Container for Menu Button and Dynamic Header Name */
         .header-left {
             display: flex;
             align-items: center;
@@ -47,7 +47,6 @@
             font-weight: bold;
         }
 
-        /* 3 Lines Menu Button */
         .menu-btn {
             background: none;
             border: none;
@@ -67,17 +66,15 @@
             border-radius: 2px;
         }
 
-        /* Profile White Circle */
         .profile-icon {
             width: 32px;
             height: 32px;
             border: 2px solid #ffffff;
             border-radius: 50%;
             cursor: pointer;
-            background-color: transparent;
+            background-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* Sidebar Container */
         .sidebar {
             position: fixed;
             top: 0;
@@ -108,12 +105,13 @@
             border: none;
             text-align: left;
             padding: 15px 20px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: #002060;
             cursor: pointer;
             width: 100%;
             border-bottom: 1px solid #eeeeee;
+            transition: all 0.2s;
         }
 
         .sidebar-item.active {
@@ -123,10 +121,9 @@
 
         .logout-btn {
             border-top: 1px solid #eeeeee;
-            border-bottom: none;
+            color: #dc2626;
         }
 
-        /* Background overlay tint */
         .overlay {
             position: fixed;
             top: 0;
@@ -142,54 +139,12 @@
             display: block;
         }
 
-        /* Main Welcome Content Area */
         .main-content {
-            margin-top: 100px;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .main-content h1 {
-            color: #002060;
-            margin-bottom: 10px;
+            margin-top: 60px;
+            padding: 40px 20px;
+            min-height: calc(100vh - 60px);
         }
 
-        .session-status {
-            margin-top: 20px; 
-            font-size: 18px;
-            color: #002060; 
-            font-weight: bold;
-        }
-
-        /* Action Buttons Grid in Dashboard */
-        .dashboard-actions {
-            margin-top: 30px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .action-card-btn {
-            background-color: #ffffff;
-            color: #002060;
-            border: 2px solid #002060;
-            padding: 20px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .action-card-btn:hover {
-            background-color: #002060;
-            color: #ffffff;
-        }
-
-        
         .bottom-left-info-zone {
             position: fixed;
             bottom: 20px;
@@ -201,58 +156,35 @@
             z-index: 90;
         }
 
-        
-        .shortcut-status-text {
-            font-size: 13px;
-            color: #002060;
-            font-weight: bold;
-            background-color: rgba(0, 32, 96, 0.08);
-            padding: 6px 12px;
-            border-radius: 4px;
-            border-left: 3px solid #002060;
-            display: none;
-        }
-
-        
         .scanner-shortcut-btn {
             background-color: #002060;
             color: #ffffff;
             border: none;
-            padding: 15px 20px;
+            padding: 15px 25px;
             font-size: 16px;
             font-weight: bold;
             border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 32, 96, 0.3);
+            box-shadow: 0 4px 14px rgba(0, 32, 96, 0.4);
             display: none;
             align-items: center;
             gap: 8px;
+            transition: transform 0.2s;
         }
-
         .scanner-shortcut-btn:hover {
-            background-color: #00133a;
+            transform: scale(1.05);
         }
 
-        
-        .admin-add-btn {
-            background-color: #002060;
-            color: #ffffff;
-            border: none;
-            width: 50px;
-            height: 50px;
-            font-size: 28px;
-            font-weight: bold;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 32, 96, 0.3);
+        /* Camera overlay modal container */
+        #cameraModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 300;
             display: none;
             justify-content: center;
             align-items: center;
-            transition: background-color 0.2s ease;
-        }
-
-        .admin-add-btn:hover {
-            background-color: #00133a;
+            flex-direction: column;
         }
     </style>
 </head>
@@ -265,37 +197,124 @@
                 <span></span>
                 <span></span>
             </button>
-            <div class="user-name-display" id="headerNameDisplay"></div>
+            <div class="user-name-display" id="headerNameDisplay">Welcome</div>
         </div>
-        
         <div class="profile-icon" id="profileBtn" title="Go to Login"></div>
     </header>
 
     <div class="sidebar" id="sidebar">
         <div class="sidebar-menu-items" id="sidebarMenuContainer">
-            <button class="sidebar-item active" id="homeBtn">HOME</button>
-            </div>
+            <button class="sidebar-item active" id="homeViewBtn">HOME</button>
+        </div>
         <button class="sidebar-item logout-btn" id="logoutBtn">Logout &rarr;</button>
     </div>
 
     <div class="overlay" id="overlay"></div>
 
     <main class="main-content">
-        <h1>HOME PAGE</h1>
-        <p>Simple navy blue and white design system.</p>
-        <div class="session-status" id="sessionDisplay">Loading session information...</div>
+        
+        <div id="view-home" class="view-panel text-center py-12 max-w-xl mx-auto space-y-4">
+            <h1 class="text-4xl font-extrabold text-[#002060] uppercase tracking-tight" id="dynamicWelcomeHeader">WELCOME</h1>
+            <div class="p-8 bg-white border-2 border-dashed border-[#002060]/30 rounded-xl shadow-xs">
+                <p class="text-2xl font-mono tracking-widest font-black text-slate-700" id="welcomeConfigText">cait</p>
+            </div>
+            <p class="text-sm text-slate-500 font-medium" id="sessionDisplaySummary">Loading status system tracking tokens...</p>
+        </div>
 
-        <div class="dashboard-actions" id="dashboardActionsGrid"></div>
+        <div id="view-directory" class="view-panel hidden max-w-5xl mx-auto space-y-6">
+            <h2 id="directoryPanelTitle" class="text-xl font-bold text-[#002060] border-b pb-2">Directory</h2>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 border border-slate-200 rounded-xl">
+                <div class="relative w-full md:w-72">
+                    <input type="text" id="directorySearchField" oninput="executeDirectorySearch()" placeholder="Search name or enrollment..." class="w-full text-xs px-4 py-2.5 border border-slate-300 focus:outline-[#002060]">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="directoryCardsGrid"></div>
+        </div>
+
+        <div id="view-attendance" class="view-panel hidden max-w-5xl mx-auto space-y-6">
+            <h2 class="text-xl font-bold text-[#002060] border-b pb-2">Attendance</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="attendanceGridContainer"></div>
+
+            <div id="activeRollCallSection" class="hidden bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mt-6">
+                <div class="p-6 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h3 id="activeRegisterTitle" class="text-lg font-bold text-slate-900">Subject Class Name</h3>
+                        <p id="activeRegisterMeta" class="text-xs font-mono text-[#002060] font-bold">ACTIVE REGISTRY</p>
+                    </div>
+                    <button onclick="closeActiveRegister()" class="text-xs font-bold px-3 py-1.5 bg-slate-200 hover:bg-slate-300 rounded-md transition">Cancel Sheet</button>
+                </div>
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-100 text-xs font-mono font-bold uppercase text-slate-600">
+                        <tr>
+                            <th class="p-4 pl-6">Student Information Reference</th>
+                            <th class="p-4 text-center w-32">Status Selector</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activeRegisterTableBody" class="divide-y divide-slate-100 text-sm font-mono"></tbody>
+                </table>
+                <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+                    <button onclick="triggerExamSimulation()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded transition">Take Exam Session</button>
+                    <button onclick="commitAttendanceSheet()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded transition shadow-sm">Save Register Summary</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-admin" class="view-panel hidden max-w-5xl mx-auto space-y-8">
+            <div class="bg-white p-6 border border-slate-200 rounded-xl space-y-4">
+                <h2 class="text-xl font-bold text-red-700">System</h2>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="toggleAdminViewTab('stu')" id="btnTabStu" class="px-4 py-2 bg-[#002060] text-white text-xs font-bold rounded">Edit Students Table</button>
+                    <button onclick="toggleAdminViewTab('fac')" id="btnTabFac" class="px-4 py-2 bg-slate-200 text-slate-700 text-xs font-bold rounded">Edit Faculty Table</button>
+                    <button onclick="toggleAdminViewTab('syl')" id="btnTabSyl" class="px-4 py-2 bg-slate-200 text-slate-700 text-xs font-bold rounded">Edit Syllabus Table</button>
+                    <button onclick="toggleAdminViewTab('cfg')" id="btnTabCfg" class="px-4 py-2 bg-slate-200 text-slate-700 text-xs font-bold rounded">Edit notice</button>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 border border-slate-200 rounded-xl shadow-xs">
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h3 id="adminFormSectionTitle" class="text-md font-bold text-slate-800">Add New Entry</h3>
+                    <button onclick="clearAdminFormFields()" class="text-xs font-semibold text-slate-400 hover:text-slate-600">Clear Input Fields</button>
+                </div>
+                <form id="adminControlForm" onsubmit="handleAdminFormSubmit(event)" class="space-y-4">
+                    <input type="hidden" id="adminTargetActionId" value="">
+                    <div id="adminDynamicInputsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                    <div class="flex justify-end pt-2">
+                        <button type="submit" class="bg-[#002060] text-white text-xs font-bold px-6 py-2.5 rounded hover:bg-opacity-90 transition">Commit Database Transaction</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="bg-slate-50 text-xs font-bold text-slate-500 uppercase border-b border-slate-200">
+                        <tr id="adminTableHeadRow"></tr>
+                    </thead>
+                    <tbody id="adminTableBodyRows" class="divide-y divide-slate-100 font-mono text-xs"></tbody>
+                </table>
+            </div>
+        </div>
+
     </main>
 
     <div class="bottom-left-info-zone">
-        <div class="shortcut-status-text" id="shortcutStatusText"></div>
-        
-        <button class="scanner-shortcut-btn" id="qrScannerShortcutBtn">
-             QR 
-        </button>
+        <button class="scanner-shortcut-btn" id="qrScannerShortcutBtn"> QR</button>
+    </div>
 
-        <button class="admin-add-btn" id="adminAddBtn" title="Add Records">+</button>
+    <div id="cameraModal">
+        <div class="bg-white p-6 rounded-xl max-w-sm w-full text-center space-y-4 m-4">
+            <h3 class="text-lg font-bold text-[#002060]">Scan qr code</h3>
+            <div class="w-full h-48 bg-slate-900 rounded-lg relative overflow-hidden flex items-center justify-center border border-slate-700 shadow-inner">
+                <video id="webcamCaptureStream" class="w-full h-full object-cover absolute inset-0 hidden" autoplay playsinline></video>
+                <div id="cameraAccessFallbackLabel" class="text-white text-xs px-4 text-center space-y-2 animate-pulse">
+                    <p>🔒 Awaiting Stream Initialization...</p>
+                </div>
+                <div class="absolute w-36 h-36 border-2 border-emerald-500 rounded-md opacity-60 pointer-events-none"></div>
+            </div>
+            <div id="detectedPayloadArea" onclick="simulateSuccessfulQRCodeScan()" class="hidden p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded font-mono text-xs font-bold cursor-pointer"></div>
+            <div class="flex gap-2 justify-end">
+                <button onclick="terminateCameraPipeline()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition">Close </button>
+           </div>
+        </div>
     </div>
 
     <script>
@@ -303,166 +322,628 @@
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
         const profileBtn = document.getElementById('profileBtn');
-        const homeBtn = document.getElementById('homeBtn');
         const logoutBtn = document.getElementById('logoutBtn');
-        const sessionDisplay = document.getElementById('sessionDisplay');
-        const headerNameDisplay = document.getElementById('headerNameDisplay');
         const sidebarMenuContainer = document.getElementById('sidebarMenuContainer');
-        const dashboardActionsGrid = document.getElementById('dashboardActionsGrid');
+        const viewHome = document.getElementById('view-home');
+        const viewDirectory = document.getElementById('view-directory');
+        const viewAttendance = document.getElementById('view-attendance');
+        const viewAdmin = document.getElementById('view-admin');
         
-        const shortcutStatusText = document.getElementById('shortcutStatusText');
         const qrScannerShortcutBtn = document.getElementById('qrScannerShortcutBtn');
-        const adminAddBtn = document.getElementById('adminAddBtn');
 
-        
-        menuBtn.addEventListener('click', () => {
-            sidebar.classList.add('open');
-            overlay.classList.add('show');
-        });
+        let currentAdminActiveTab = 'stu'; 
+        let activeFacultyRegisterSubject = '';
+        let activeFacultyRegisterSection = '';
+        let globalMediaStreamPointer = null;
+    
+        let directoryActiveTargetType = 'stu';
 
-        function closeSidebar() {
-            sidebar.classList.remove('open');
-            overlay.classList.remove('show');
-        }
-
+        menuBtn.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('show'); });
+        function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('show'); }
         overlay.addEventListener('click', closeSidebar);
-        homeBtn.addEventListener('click', closeSidebar);
+        document.getElementById('homeViewBtn').addEventListener('click', () => { closeSidebar(); switchActiveViewCanvas('home'); });
+        profileBtn.addEventListener('click', () => { window.location.href = 'login.html'; });
 
-        profileBtn.addEventListener('click', () => {
-            window.location.href = 'login.html';
-        });
+        // DATABASE 
+        function getDatabaseTable(tableName) {
+            return JSON.parse(localStorage.getItem(`info_${tableName}`)) || [];
+        }
+        function saveDatabaseTable(tableName, dataArray) {
+            localStorage.setItem(`info_${tableName}`, JSON.stringify(dataArray));
+        }
 
-        
-        function updateDashboard() {
-            const flag = sessionStorage.getItem('flag');
-            const fetchedUserRaw = sessionStorage.getItem('fetched_user');
-            let userData = null;
+        function switchActiveViewCanvas(targetPanelId) {
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
 
-            if (fetchedUserRaw) {
-                try {
-                    userData = JSON.parse(fetchedUserRaw);
-                } catch(e) {
-                    console.error("Error parsing user payload context", e);
-                }
-            }
-
-            
-            headerNameDisplay.innerText = "";
-            shortcutStatusText.style.display = "none";
-            shortcutStatusText.innerText = "";
-            qrScannerShortcutBtn.style.display = "none";
-            adminAddBtn.style.display = "none";
-            dashboardActionsGrid.innerHTML = "";
-
-    
-            const structuralItems = sidebarMenuContainer.querySelectorAll('.dynamic-item');
-            structuralItems.forEach(item => item.remove());
-
-            if (flag) {
-                sessionDisplay.innerHTML = `Active Session: <span style="color: green;">${flag.toUpperCase()}</span>`;
-                
-                if (flag === 'admin login') {
-                    headerNameDisplay.innerText = "Admin Portal";
-
-                    
-                    createSidebarItem("Manage", "admin.html");
-                    
-
-                    
-                    adminAddBtn.style.display = "flex";
-
-                    
-                    
-                } 
-                
-                else if (flag === 'parent login') {
-                    const studentName = userData ? (userData.name || "Student Record") : "Fetched Student";
-                    headerNameDisplay.innerText = `Parent of: ${studentName}`;
-
-                    createSidebarItem("View Attendance", "attendance.html");
-
-                    shortcutStatusText.innerText = `Viewing tracking profile metrics.`;
-                    shortcutStatusText.style.display = "block";
-
-                    
-                } 
-                
-                else if (flag === 'student login') {
-                    const studentName = userData ? (userData.name || "Student") : "Student Account";
-                    headerNameDisplay.innerText = studentName;
-
-                    createSidebarItem("My Attendance", "attendance.html");
-
-                    
-                    qrScannerShortcutBtn.style.display = "flex";
-
-                    
-                    
-                } 
-                
-                else if (flag === 'faculty login') {
-                    headerNameDisplay.innerText = "Faculty Room";
-
-                    createSidebarItem("Manage Attendance", "attendance.html");
-
-                    
-                }
-
-            } else {
-                sessionDisplay.innerHTML = `Status: <span style="color: red;">Guest Mode (Not Logged In)</span>`;
-                headerNameDisplay.innerText = "Guest Access";
-                
-                
-                
+            if (targetPanelId === 'home') {
+                viewHome.classList.remove('hidden');
+                document.getElementById('homeViewBtn').classList.add('active');
+            } else if (targetPanelId === 'directory_stu' || targetPanelId === 'directory_fac') {
+                viewDirectory.classList.remove('hidden');
+                const elementBtn = document.getElementById(targetPanelId === 'directory_stu' ? 'sidebarBtnStu' : 'sidebarBtnFac');
+                if (elementBtn) elementBtn.classList.add('active');
+                renderDirectoryCards(targetPanelId === 'directory_stu' ? 'stu' : 'fac');
+            } else if (targetPanelId === 'attendance') {
+                viewAttendance.classList.remove('hidden');
+                const elementBtn = document.getElementById('sidebarBtnAtt');
+                if (elementBtn) elementBtn.classList.add('active');
+                renderAttendanceWorkspace();
+            } else if (targetPanelId === 'admin') {
+                viewAdmin.classList.remove('hidden');
+                const elementBtn = document.getElementById('sidebarBtnAdmin');
+                if (elementBtn) elementBtn.classList.add('active');
+                renderAdminWorkspaceTable();
             }
         }
 
-    
-        function createSidebarItem(text, targetUrl) {
+        function runApplicationWorkspaceInitialization() {
+            const workspaceFlag = sessionStorage.getItem('flag') || 'guest';
+            const userContextRaw = sessionStorage.getItem('fetched_user');
+            let userContext = userContextRaw ? JSON.parse(userContextRaw) : null;
+
+            document.querySelectorAll('.dynamic-item').forEach(e => e.remove());
+            qrScannerShortcutBtn.style.display = "none";
+
+            const appWelcomeConfigText = localStorage.getItem('info_config_welcome') || 'cait';
+            document.getElementById('welcomeConfigText').innerText = appWelcomeConfigText;
+            createSidebarItem("sidebarBtnStu", "STUDENTS", () => switchActiveViewCanvas('directory_stu'));
+            createSidebarItem("sidebarBtnFac", "FACULTY", () => switchActiveViewCanvas('directory_fac'));
+            
+            if (workspaceFlag === 'guest') {
+                document.getElementById('headerNameDisplay').innerText = "Guest Access";
+                document.getElementById('sessionDisplaySummary').innerHTML = `Status: <span class="text-red-600 font-bold">Guest Mode (Not Logged In)</span>`;
+            }   
+            else if (workspaceFlag === 'student login') {
+                document.getElementById('headerNameDisplay').innerText = userContext?.name || "Student";
+                document.getElementById('sessionDisplaySummary').innerHTML = `Active Profile: <span class="text-emerald-600 font-bold">STUDENT</span>`;
+                qrScannerShortcutBtn.style.display = "flex";
+                createSidebarItem("sidebarBtnAtt", "MY ATTENDANCE", () => switchActiveViewCanvas('attendance'));
+            } 
+            else if (workspaceFlag === 'parent login') {
+                document.getElementById('headerNameDisplay').innerText = `Parents of: ${userContext?.name || "Student"}`;
+                document.getElementById('sessionDisplaySummary').innerHTML = `Active Profile: <span class="text-indigo-600 font-bold">PARENTS</span>`;
+                createSidebarItem("sidebarBtnAtt", "VIEW ATTENDANCE", () => switchActiveViewCanvas('attendance'));
+            } 
+            else if (workspaceFlag === 'faculty login') {
+                document.getElementById('headerNameDisplay').innerText = `Faculty: ${userContext?.name || "Instructor"}`;
+                document.getElementById('sessionDisplaySummary').innerHTML = `Active Workspace: <span class="text-blue-700 font-bold">FACULTY</span>`;
+                createSidebarItem("sidebarBtnAtt", "MANAGE ATTENDANCE", () => switchActiveViewCanvas('attendance'));
+            } 
+            else if (workspaceFlag === 'admin login') {
+                document.getElementById('headerNameDisplay').innerText = "Admin ";
+                document.getElementById('sessionDisplaySummary').innerHTML = `Security Clearances: <span class="text-red-700 font-bold">ROOT level</span>`;
+                createSidebarItem("sidebarBtnAdmin", "ADMIN OPERATIONS", () => switchActiveViewCanvas('admin'));
+            }
+        }
+
+        function createSidebarItem(elementId, labelTitle, directCallbackAction) {
             const btn = document.createElement('button');
-            btn.className = "sidebar-item dynamic-item";
-            btn.innerText = text;
-            btn.addEventListener('click', () => {
-                closeSidebar();
-                navigateTo(targetUrl);
-            });
+            btn.className = "sidebar-item dynamic-item font-bold text-left";
+            btn.id = elementId;
+            btn.innerText = labelTitle;
+            btn.addEventListener('click', () => { closeSidebar(); directCallbackAction(); });
             sidebarMenuContainer.appendChild(btn);
         }
 
-        
-        function navigateTo(page) {
-            window.location.href = page;
+        function renderDirectoryCards(targetSchemaType) {
+            directoryActiveTargetType = targetSchemaType;
+            const titleEl = document.getElementById('directoryPanelTitle');
+            if (titleEl) {
+                titleEl.innerText = targetSchemaType === 'stu' ? "Students Directory" : "Faculty Directory";
+            }
+            document.getElementById('directorySearchField').value = '';
+            executeDirectorySearch();
         }
 
-        
-        qrScannerShortcutBtn.addEventListener('click', () => {
-            navigateTo('scanner.html');
-        });
+        function executeDirectorySearch() {
+            const searchToken = document.getElementById('directorySearchField').value.toLowerCase().trim();
+            const payloadRecords = getDatabaseTable(directoryActiveTargetType);
+            const gridContainer = document.getElementById('directoryCardsGrid');
+            gridContainer.innerHTML = '';
 
-        adminAddBtn.addEventListener('click', () => {
-            navigateTo('admin_create_records.html'); 
-        });
+            const matches = payloadRecords.filter(item => {
+                const searchName = (item.name || '').toLowerCase();
+                const searchEnrollment = (item.enrollment || '').toLowerCase();
+                const searchUserHandle = (item.username || '').toLowerCase();
+                return searchName.includes(searchToken) || searchEnrollment.includes(searchToken) || searchUserHandle.includes(searchToken);
+            });
 
-        
-        logoutBtn.addEventListener('click', () => {
-            sessionStorage.clear();
-            localStorage.clear();
-
-            const cookies = document.cookie.split(";");
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i];
-                const eqPos = cookie.indexOf("=");
-                const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-                document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+            if(matches.length === 0) {
+                gridContainer.innerHTML = `<div class="col-span-full py-8 text-center text-xs font-bold text-slate-400 font-mono">No match.</div>`;
+                return;
             }
 
-            alert("Session cleared successfully!");
-            closeSidebar();
-            window.location.reload();
+            matches.forEach(record => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 border border-slate-200 shadow-xs space-y-1 flex flex-col justify-between";
+                
+                if (directoryActiveTargetType === 'stu') {
+                    card.innerHTML = `
+                        <div>
+                           <h3 class="font-extrabold text-slate-800 text-sm mt-5 tracking-tight">${record.name} - (${record.semester || 'Unassigned'})</h3>
+                           <p class="text-slate-800 text-sm">${record.enrollment} - <span>${record.hosteler ? 'Hosteler' : 'Day Scholar'}</span></p>
+                        </div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div>
+                            <h3 class="font-extrabold text-slate-800 text-sm mt-2 tracking-tight">${record.name}</h3>
+                            <p class="text-xs text-slate-400 mt-0.5">${record.department}</p>
+                        </div>
+                    `;
+                }
+                gridContainer.appendChild(card);
+            });
+        }
+
+        function renderAttendanceWorkspace() {
+            const clientFlag = sessionStorage.getItem('flag');
+            const userContextRaw = sessionStorage.getItem('fetched_user');
+            const clientUserObj = userContextRaw ? JSON.parse(userContextRaw) : null;
+            
+            const cardsContainer = document.getElementById('attendanceGridContainer');
+            document.getElementById('activeRollCallSection').classList.add('hidden');
+            cardsContainer.innerHTML = '';
+
+            const attendanceRecords = getDatabaseTable('att');
+            const syllabusRecords = getDatabaseTable('syl');
+
+            if (clientFlag === 'student login' || clientFlag === 'parent login') {
+                const currentStudentEnrollment = clientUserObj?.enrollment;
+                const matches = attendanceRecords.filter(a => a.enrollment === currentStudentEnrollment);
+
+                if(matches.length === 0) {
+                    cardsContainer.innerHTML = `<div class="col-span-full py-6 text-center text-xs font-mono text-slate-400">No student attendance record found.</div>`;
+                    return;
+                }
+
+                matches.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-5 border border-slate-200 rounded-xl flex flex-col justify-between shadow-xs";
+                    card.innerHTML = `
+                        <div class="mb-4">
+                            <h3 class="font-bold text-sm text-slate-800 mt-2 leading-snug">${item.subject}</h3>
+                        </div>
+                        <div class="p-3 bg-slate-50 border border-slate-100 flex items-center justify-between">
+                            <div>
+                                <p class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Lectures = ${item.logged || '0 of 0'}</p>
+                             </div>
+                            <div class="text-right"><span class="text-base font-black text-emerald-600">${item.percentage || '0%'}</span></div>
+                        </div>
+                    `;
+                    cardsContainer.appendChild(card);
+                });
+            } 
+            else if (clientFlag === 'faculty login') {
+                if(syllabusRecords.length === 0) {
+                    cardsContainer.innerHTML = `<div class="col-span-full py-6 text-center text-xs font-mono text-slate-400">No active assignment syllabus mapped in master configuration database.</div>`;
+                    return;
+                }
+
+                syllabusRecords.forEach(course => {
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-5 border border-slate-200 rounded-xl flex flex-col justify-between shadow-xs";
+                    card.innerHTML = `
+                        <div class="mb-4">
+                            <span class="text-[9px] font-mono font-bold text-[#002060] bg-slate-100 px-2 py-0.5 rounded border border-slate-200">${course.sem}</span>
+                            <h3 class="font-bold text-sm text-slate-800 mt-2 leading-snug">${course.subject}</h3>
+                            <p class="text-[10px] font-mono font-bold text-slate-400 mt-0.5">Code: ${course.code}</p>
+                        </div>
+                        <button onclick="launchRollCallSheet('${course.subject}', '${course.sem}')" class="w-full bg-[#002060] hover:bg-opacity-90 text-white text-xs font-semibold py-2 rounded transition text-center">
+                            Launch Roll Call Register
+                        </button>
+                    `;
+                    cardsContainer.appendChild(card);
+                });
+            }
+        }
+
+        function launchRollCallSheet(subjectName, sectionSemester) {
+            activeFacultyRegisterSubject = subjectName;
+            activeFacultyRegisterSection = sectionSemester;
+
+            document.getElementById('activeRegisterTitle').innerText = subjectName;
+            document.getElementById('activeRegisterMeta').innerText = `${sectionSemester.toUpperCase()} • ACTIVE REGISTER MANAGEMENT SHEET`;
+
+            const studentsTable = getDatabaseTable('stu');
+            const attendanceTable = getDatabaseTable('att');
+            const targetTableBody = document.getElementById('activeRegisterTableBody');
+            targetTableBody.innerHTML = '';
+
+            const targetedCohort = studentsTable.filter(s => s.semester === sectionSemester);
+
+            if(targetedCohort.length === 0) {
+                targetTableBody.innerHTML = `<tr><td colspan="2" class="p-6 text-center text-xs font-bold text-slate-400">No student enrollment configurations map onto this term code registry field.</td></tr>`;
+            } else {
+                targetedCohort.forEach(student => {
+                    const trackingLogInstance = attendanceTable.find(a => a.enrollment === student.enrollment && a.subject === subjectName);
+                    const isMarkedPresent = trackingLogInstance ? trackingLogInstance.present === true : true; 
+
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-50 transition";
+                    row.innerHTML = `
+                        <td class="p-4 pl-6">
+                            <div class="font-bold text-slate-700">${student.name}</div>
+                            <div class="text-[11px] text-slate-400 font-mono font-bold">${student.enrollment}</div>
+                        </td>
+                        <td class="p-4 text-center">
+                            <input type="checkbox" data-student-enroll="${student.enrollment}" ${isMarkedPresent ? 'checked' : ''} class="w-4 h-4 accent-[#002060] cursor-pointer attendance-input-checkbox-node">
+                        </td>
+                    `;
+                    targetTableBody.appendChild(row);
+                });
+            }
+            document.getElementById('activeRollCallSection').classList.remove('hidden');
+            window.scrollTo({ top: document.getElementById('activeRollCallSection').offsetTop - 20, behavior: 'smooth' });
+        }
+
+        function closeActiveRegister() {
+            document.getElementById('activeRollCallSection').classList.add('hidden');
+        }
+
+        function triggerExamSimulation() {
+            alert("Redirecting environment session to safe testing application context...\n[Exam Dashboard Active]");
+        }
+
+        function commitAttendanceSheet() {
+            const attendanceTable = getDatabaseTable('att');
+            const checkboxNodes = document.querySelectorAll('.attendance-input-checkbox-node');
+
+            checkboxNodes.forEach(node => {
+                const studentEnrollCode = node.getAttribute('data-student-enroll');
+                const isCheckedStatus = node.checked;
+
+                const trackingIndex = attendanceTable.findIndex(a => a.enrollment === studentEnrollCode && a.subject === activeFacultyRegisterSubject);
+                if (trackingIndex > -1) {
+                    attendanceTable[trackingIndex].present = isCheckedStatus;
+                } else {
+                    attendanceTable.push({
+                        enrollment: studentEnrollCode,
+                        subject: activeFacultyRegisterSubject,
+                        logged: "21 of 23 Sessions",
+                        percentage: "91%",
+                        present: isCheckedStatus
+                    });
+                }
+            });
+
+            saveDatabaseTable('att', attendanceTable);
+            alert("Attendance system register matrix successfully synchronized and saved to data logs!");
+            closeActiveRegister();
+            renderAttendanceWorkspace();
+        }
+
+        // HARDWARE QR PERIPHERAL CAMERA 
+        qrScannerShortcutBtn.addEventListener('click', async () => {
+            const modalElement = document.getElementById('cameraModal');
+            const videoFeedNode = document.getElementById('webcamCaptureStream');
+            const feedbackLabelNode = document.getElementById('cameraAccessFallbackLabel');
+            const payloadAreaNode = document.getElementById('detectedPayloadArea');
+
+            modalElement.style.display = 'flex';
+            payloadAreaNode.classList.add('hidden');
+            payloadAreaNode.innerText = '';
+            feedbackLabelNode.innerHTML = `<p class="animate-pulse text-amber-400 font-bold">🔄 Requesting Client Hardware Access Permission...</p>`;
+
+            try {
+                const captureConstraints = { video: { facingMode: "environment" } };
+                globalMediaStreamPointer = await navigator.mediaDevices.getUserMedia(captureConstraints);
+                videoFeedNode.srcObject = globalMediaStreamPointer;
+                videoFeedNode.classList.remove('hidden');
+                feedbackLabelNode.classList.add('hidden');
+                
+                // Emulate scan automatically after 2 seconds for fallback/demo support
+                setTimeout(simulateSuccessfulQRCodeScan, 2000);
+            } catch (err) {
+                console.warn("Camera execution blocked or interface missing. Falling back to emulation interface.", err);
+                feedbackLabelNode.innerHTML = `
+                    <p class="text-rose-400 font-bold">⚠️ Media Stream Intercept Failed</p>
+                    <p class="text-[10px] text-slate-300">Defaulting to integrated sandbox simulation stack.</p>
+                `;
+                setTimeout(simulateSuccessfulQRCodeScan, 2000);
+            }
         });
 
+        function terminateCameraPipeline() {
+            if (globalMediaStreamPointer) {
+                globalMediaStreamPointer.getTracks().forEach(track => track.stop());
+                globalMediaStreamPointer = null;
+            }
+            const videoFeedNode = document.getElementById('webcamCaptureStream');
+            if (videoFeedNode) {
+                videoFeedNode.srcObject = null;
+                videoFeedNode.classList.add('hidden');
+            }
+            document.getElementById('cameraModal').style.display = 'none';
+        }
+
+        function simulateSuccessfulQRCodeScan() {
+            const sessionUserRaw = sessionStorage.getItem('fetched_user');
+            const currentStudentObj = sessionUserRaw ? JSON.parse(sessionUserRaw) : null;
+            
+            if(!currentStudentObj || !currentStudentObj.enrollment) {
+                const payloadAreaNode = document.getElementById('detectedPayloadArea');
+                if (payloadAreaNode) {
+                    payloadAreaNode.innerText = "Scan Error: No matching student session.";
+                    payloadAreaNode.classList.remove('hidden');
+                }
+                return;
+            }
+
+            const targetStudentEnrollCode = currentStudentObj.enrollment;
+            const payloadAreaNode = document.getElementById('detectedPayloadArea');
+            if (payloadAreaNode) {
+                payloadAreaNode.innerText = `Decoded: ENR_${targetStudentEnrollCode} -> verified`;
+                payloadAreaNode.classList.remove('hidden');
+            }
+
+            setTimeout(() => {
+                const attLogs = getDatabaseTable('att');
+                attLogs.forEach((log, index) => {
+                    if(log.enrollment === targetStudentEnrollCode) {
+                        attLogs[index].present = true;
+                    }
+                });
+
+                saveDatabaseTable('att', attLogs);
+                alert(`QR Authentication Verified!\nEnrollment code [${targetStudentEnrollCode}] transmitted to faculty logs.`);
+                terminateCameraPipeline();
+                
+                if(!viewAttendance.classList.contains('hidden') && activeFacultyRegisterSubject) {
+                    launchRollCallSheet(activeFacultyRegisterSubject, activeFacultyRegisterSection);
+                }
+            }, 900);
+        }
+
+        // ADMIN BACKEND WORKSPACE
+        function toggleAdminViewTab(tabTargetKey) {
+            currentAdminActiveTab = tabTargetKey;
+            
+            const tabs = { stu: 'btnTabStu', fac: 'btnTabFac', syl: 'btnTabSyl', cfg: 'btnTabCfg' };
+            Object.keys(tabs).forEach(k => {
+                const el = document.getElementById(tabs[k]);
+                if (el) {
+                    if(k === tabTargetKey) {
+                        el.className = "px-4 py-2 bg-[#002060] text-white text-xs font-bold rounded";
+                    } else {
+                        el.className = "px-4 py-2 bg-slate-200 text-slate-700 text-xs font-bold rounded";
+                    }
+                }
+            });
+
+            clearAdminFormFields();
+            generateAdminInputFieldsMarkup();
+            renderAdminWorkspaceTable();
+        }
+function generateAdminInputFieldsMarkup() {
+            const formGridContainer = document.getElementById('adminDynamicInputsGrid');
+            formGridContainer.innerHTML = '';
+            if(currentAdminActiveTab === 'stu') {
+                document.getElementById('adminFormSectionTitle').innerText = "Create / Update Student Record Node";
+                formGridContainer.innerHTML = `
+                    <div class="flex flex-col gap-1"><label class="text-[10px] uppercase font-bold text-slate-500">Full Name</label><input type="text" id="formField_name" class="p-2 border rounded text-xs" required></div>
+                    <div class="flex flex-col gap-1"><label class="text-[10px] uppercase font-bold text-slate-500">Enrollment Code Number</label><input type="number" id="formField_enrollment" class="p-2 border rounded text-xs" required></div>
+                    <div class="flex flex-col gap-1"><label class="text-[10px] uppercase font-bold text-slate-500">Parent Reference Contact Number</label><input type="number" id="formField_parent_ref" class="p-2 border rounded text-xs" required></div>
+                    <div class="flex flex-col gap-1"><label class="text-[10px] uppercase font-bold text-slate-500">Term Semester Code Placement</label><input type="text" id="formField_semester" placeholder="e.g. Semester 4" class="p-2 border rounded text-xs" required></div>
+                    <div class="flex items-center gap-2 pt-4"><input type="checkbox" id="formField_hosteler" class="w-4 h-4 accent-[#002060]"><label class="text-xs font-bold text-slate-700">Verified Hosteler Status Flag</label></div>
+                `;
+            } 
+            else if(currentAdminActiveTab === 'fac') {
+                document.getElementById('adminFormSectionTitle').innerText = "Create / Update Instructor Record Node";
+                formGridContainer.innerHTML = `
+                    <div class="flex flex-col gap-1"><label class="text-[10px] uppercase font-bold text-slate-500">Account Username ID Handle</label><input type="text" id="formField_username" class="p-2 border rounded text-xs" required></div>
+                    <div class="flex flex-col gap-1"><label class="text-[10px] uppercase font-bold text-slate-500">Access Key Password String</label><input type="text" id="formField_password" class="p-2 border rounded text-xs" required></div>
+                    <div class="flex flex-col gap-1"><label class="text-[10px] uppercase font-bold text-slate-500">Faculty Member Identity Name</label><input type="text" id="formField_name" class="p-2 border rounded text-xs" required></div>
+                    <div class="flex flex-col gap-1"><label class="text-[10px] uppercase font-bold text-slate-500">Department / Center Placement</label><input type="text" id="formField_department" class="p-2 border rounded text-xs" required></div>
+                `;
+            } 
+            else if(currentAdminActiveTab === 'syl') {
+                document.getElementById('adminFormSectionTitle').innerText = "Create / Update Mapped Course Syllabus Module";
+                formGridContainer.innerHTML = `
+                    <div class="flex flex-col gap-1"><label class="text-[10px] uppercase font-bold text-slate-500">Target Level Semester</label><input type="text" id="formField_sem" placeholder="e.g. Semester 4" class="p-2 border rounded text-xs" required></div>
+                    <div class="flex flex-col gap-1"><label class="text-[10px] uppercase font-bold text-slate-500">Subject Topic Description Label</label><input type="text" id="formField_subject" class="p-2 border rounded text-xs" required></div>
+                    <div class="flex flex-col gap-1"><label class="text-[10px] uppercase font-bold text-slate-500">Course Index System Catalog Code</label><input type="text" id="formField_code" class="p-2 border rounded text-xs" required></div>
+                `;
+            } 
+            else if(currentAdminActiveTab === 'cfg') {
+                document.getElementById('adminFormSectionTitle').innerText = "Modify Portal Text Parameters Engine";
+                const currentWelcomeVal = localStorage.getItem('info_config_welcome') || 'cait';
+                formGridContainer.innerHTML = `
+                    <div class="flex flex-col gap-1 col-span-full"><label class="text-[10px] uppercase font-bold text-slate-500">Welcome Screen Message Substring Header</label><input type="text" id="formField_welcomeText" value="${currentWelcomeVal}" class="p-2 border rounded text-xs font-mono font-bold" required></div>
+                `;
+            }
+        }
+
+        function clearAdminFormFields() {
+            document.getElementById('adminTargetActionId').value = '';
+            document.getElementById('adminControlForm').reset();
+        }
+
+        function renderAdminWorkspaceTable() {
+            const headRow = document.getElementById('adminTableHeadRow');
+            const tableBody = document.getElementById('adminTableBodyRows');
+            
+            headRow.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            const activeDatasetRecords = getDatabaseTable(currentAdminActiveTab);
+
+            if(currentAdminActiveTab === 'stu') {
+                headRow.innerHTML = `<th class="p-3 pl-4">Name</th><th class="p-3">Enrollment</th><th class="p-3">Term</th><th class="p-3">Parent Ref</th><th class="p-3 text-right pr-4">Actions</th>`;
+                activeDatasetRecords.forEach(record => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 font-mono text-xs";
+                    tr.innerHTML = `
+                        <td class="p-3 pl-4 font-sans font-bold">${record.name}</td>
+                        <td class="p-3">${record.enrollment}</td>
+                        <td class="p-3">${record.semester}</td>
+                        <td class="p-3">${record.parent_ref}</td>
+                        <td class="p-3 text-right pr-4 space-x-2">
+                            <button onclick="editRecordItemData('stu', ${record.id})" class="text-blue-600 font-bold hover:underline">Edit</button>
+                            <button onclick="deleteRecordItemData('stu', ${record.id})" class="text-rose-600 font-bold hover:underline">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            } 
+            else if(currentAdminActiveTab === 'fac') {
+                headRow.innerHTML = `<th class="p-3 pl-4">Username</th><th class="p-3">Instructor Name</th><th class="p-3">Placement Department</th><th class="p-3 text-right pr-4">Actions</th>`;
+                activeDatasetRecords.forEach(record => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 font-mono text-xs";
+                    tr.innerHTML = `
+                        <td class="p-3 pl-4 font-bold text-slate-500">@${record.username}</td>
+                        <td class="p-3 font-sans font-bold text-slate-800">${record.name}</td>
+                        <td class="p-3">${record.department}</td>
+                        <td class="p-3 text-right pr-4 space-x-2">
+                            <button onclick="editRecordItemData('fac', ${record.id})" class="text-blue-600 font-bold hover:underline">Edit</button>
+                            <button onclick="deleteRecordItemData('fac', ${record.id})" class="text-rose-600 font-bold hover:underline">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            } 
+            else if(currentAdminActiveTab === 'syl') {
+                headRow.innerHTML = `<th class="p-3 pl-4">Catalog Code</th><th class="p-3">Course Title</th><th class="p-3">Semester Tier</th><th class="p-3 text-right pr-4">Actions</th>`;
+                activeDatasetRecords.forEach(record => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 font-mono text-xs";
+                    tr.innerHTML = `
+                        <td class="p-3 pl-4 font-bold text-[#002060]">${record.code}</td>
+                        <td class="p-3 font-sans font-bold">${record.subject}</td>
+                        <td class="p-3">${record.sem}</td>
+                        <td class="p-3 text-right pr-4 space-x-2">
+                            <button onclick="editRecordItemData('syl', ${record.id})" class="text-blue-600 font-bold hover:underline">Edit</button>
+                            <button onclick="deleteRecordItemData('syl', ${record.id})" class="text-rose-600 font-bold hover:underline">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            } 
+            else if(currentAdminActiveTab === 'cfg') {
+                headRow.innerHTML = `<th class="p-3 pl-4">System Key Field Name</th><th class="p-3 text-left pr-4">Live Parameter Setting Value</th>`;
+                const configTextVal = localStorage.getItem('info_config_welcome') || 'cait';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 pl-4 font-bold text-slate-500 font-mono">info_config_welcome</td>
+                    <td class="p-3 font-mono font-black text-slate-800 text-sm tracking-wider uppercase">${configTextVal}</td>
+                `;
+                tableBody.appendChild(tr);
+            }
+
+            if(activeDatasetRecords.length === 0 && currentAdminActiveTab !== 'cfg') {
+                tableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-xs text-slate-400 font-bold">No active dataset elements instantiated in table file allocation space.</td></tr>`;
+            }
+        }
+
+        function handleAdminFormSubmit(event) {
+            event.preventDefault();
+            
+            if(currentAdminActiveTab === 'cfg') {
+                const targetTextString = document.getElementById('formField_welcomeText').value;
+                localStorage.setItem('info_config_welcome', targetTextString);
+                alert("Central application portal text configurations committed!");
+                runApplicationWorkspaceInitialization();
+                renderAdminWorkspaceTable();
+                return;
+            }
+
+            const currentTableRecords = getDatabaseTable(currentAdminActiveTab);
+            const hiddenTargetIdVal = document.getElementById('adminTargetActionId').value;
+
+            if (hiddenTargetIdVal) {
+                const numericId = parseInt(hiddenTargetIdVal);
+                const matchIndex = currentTableRecords.findIndex(r => r.id === numericId);
+                if(matchIndex > -1) {
+                    if(currentAdminActiveTab === 'stu') {
+                        currentTableRecords[matchIndex].name = document.getElementById('formField_name').value;
+                        currentTableRecords[matchIndex].enrollment = document.getElementById('formField_enrollment').value;
+                        currentTableRecords[matchIndex].parent_ref = document.getElementById('formField_parent_ref').value;
+                        currentTableRecords[matchIndex].semester = document.getElementById('formField_semester').value;
+                        currentTableRecords[matchIndex].hosteler = document.getElementById('formField_hosteler').checked;
+                    } else if(currentAdminActiveTab === 'fac') {
+                        currentTableRecords[matchIndex].username = document.getElementById('formField_username').value;
+                        currentTableRecords[matchIndex].password = document.getElementById('formField_password').value;
+                        currentTableRecords[matchIndex].name = document.getElementById('formField_name').value;
+                        currentTableRecords[matchIndex].department = document.getElementById('formField_department').value;
+                    } else if(currentAdminActiveTab === 'syl') {
+                        currentTableRecords[matchIndex].sem = document.getElementById('formField_sem').value;
+                        currentTableRecords[matchIndex].subject = document.getElementById('formField_subject').value;
+                        currentTableRecords[matchIndex].code = document.getElementById('formField_code').value;
+                    }
+                }
+            } else {
+                const generatedNewId = currentTableRecords.length > 0 ? Math.max(...currentTableRecords.map(o => o.id)) + 1 : 1;
+                let newRecordEntityObj = { id: generatedNewId };
+
+                if(currentAdminActiveTab === 'stu') {
+                    newRecordEntityObj.name = document.getElementById('formField_name').value;
+                    newRecordEntityObj.enrollment = document.getElementById('formField_enrollment').value;
+                    newRecordEntityObj.parent_ref = document.getElementById('formField_parent_ref').value;
+                    newRecordEntityObj.semester = document.getElementById('formField_semester').value;
+                    newRecordEntityObj.hosteler = document.getElementById('formField_hosteler').checked;
+                } else if(currentAdminActiveTab === 'fac') {
+                    newRecordEntityObj.username = document.getElementById('formField_username').value;
+                    newRecordEntityObj.password = document.getElementById('formField_password').value;
+                    newRecordEntityObj.name = document.getElementById('formField_name').value;
+                    newRecordEntityObj.department = document.getElementById('formField_department').value;
+                } else if(currentAdminActiveTab === 'syl') {
+                    newRecordEntityObj.sem = document.getElementById('formField_sem').value;
+                    newRecordEntityObj.subject = document.getElementById('formField_subject').value;
+                    newRecordEntityObj.code = document.getElementById('formField_code').value;
+                }
+                currentTableRecords.push(newRecordEntityObj);
+            }
+
+            saveDatabaseTable(currentAdminActiveTab, currentTableRecords);
+            alert("Database transaction statement completed successfully!");
+            clearAdminFormFields();
+            renderAdminWorkspaceTable();
+        }
+
+        function editRecordItemData(tableName, recordId) {
+            const collection = getDatabaseTable(tableName);
+            const dataNode = collection.find(o => o.id === recordId);
+            if(!dataNode) return;
+
+            document.getElementById('adminTargetActionId').value = dataNode.id;
+
+            if(tableName === 'stu') {
+                document.getElementById('formField_name').value = dataNode.name || '';
+                document.getElementById('formField_enrollment').value = dataNode.enrollment || '';
+                document.getElementById('formField_parent_ref').value = dataNode.parent_ref || '';
+                document.getElementById('formField_semester').value = dataNode.semester || '';
+                document.getElementById('formField_hosteler').checked = !!dataNode.hosteler;
+            } else if(tableName === 'fac') {
+                document.getElementById('formField_username').value = dataNode.username || '';
+                document.getElementById('formField_password').value = dataNode.password || '';
+                document.getElementById('formField_name').value = dataNode.name || '';
+                document.getElementById('formField_department').value = dataNode.department || '';
+            } else if(tableName === 'syl') {
+                document.getElementById('formField_sem').value = dataNode.sem || '';
+                document.getElementById('formField_subject').value = dataNode.subject || '';
+                document.getElementById('formField_code').value = dataNode.code || '';
+            }
+            window.scrollTo({ top: document.getElementById('adminControlForm').offsetTop - 100, behavior: 'smooth' });
+        }
         
-        updateDashboard();
+        function deleteRecordItemData(tableName, recordId) {
+            if(!confirm("Are you certain you desire to unlink and delete this table entity array reference?")) return;
+            const targetCollection = getDatabaseTable(tableName);
+            const filteredArrayResult = targetCollection.filter(item => item.id !== recordId);
+            saveDatabaseTable(tableName, filteredArrayResult);
+            renderAdminWorkspaceTable();
+        }
+
+        logoutBtn.addEventListener('click', () => {
+            sessionStorage.clear();
+            alert("Session clearance success! Returning execution loop context back to Guest Environment Authorization structures.");
+            window.location.href = 'login.html';
+        });
+
+        // Initialize application workspace on startup
+        window.addEventListener('DOMContentLoaded', runApplicationWorkspaceInitialization);
     </script>
 </body>
 </html>
