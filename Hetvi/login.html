@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,7 +37,6 @@
             font-size: 24px;
         }
 
-        /* Layout matches your hand drawn grid */
         .role-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -145,18 +143,52 @@
     </div>
 
     <script>
-       // connect database 
-        const db_stuenroll = [{
-                enrollment: "3060821045", 
-                parent_ref: "9876543210",
-                name: "John Doe"
-            }];
-        const db_facultyuser = [{ username: "faculty1", password: "password123" }];
-        const db_adminuser = [{username: "admin", password: "adminpassword"}];
+        // DATABASE 
+        function initDatabase() {
+            if (!localStorage.getItem('info_stu')) {
+                const defaultStudents = [
+                    { id: 1, name: "John Doe", enrollment: "3060821045", parent_ref: "9876543210", semester: "Semester 4", hosteler: true },
+                    { id: 2, name: "Jane Smith", enrollment: "3060821046", parent_ref: "9876543211", semester: "Semester 4", hosteler: false }
+                ];
+                localStorage.setItem('info_stu', JSON.stringify(defaultStudents));
+            }
+            if (!localStorage.getItem('info_fac')) {
+                const defaultFaculty = [
+                    { id: 1, username: "faculty1", password: "password123", name: "Dr. Amit Sharma", department: "Computer Science" },
+                    { id: 2, username: "faculty2", password: "password123", name: "Prof. V. Narayan", department: "Information Technology" }
+                ];
+                localStorage.setItem('info_fac', JSON.stringify(defaultFaculty));
+            }
+            if (!localStorage.getItem('info_syl')) {
+                const defaultSyllabus = [
+                    { id: 201, sem: "Semester 4", subject: "Intro to Web Scripting", code: "CS-401" },
+                    { id: 202, sem: "Semester 4", subject: "Database Management Systems", code: "CS-402" },
+                    { id: 203, sem: "Semester 6", subject: "Advanced Java Systems", code: "CS-601" }
+                ];
+                localStorage.setItem('info_syl', JSON.stringify(defaultSyllabus));
+            }
+            if (!localStorage.getItem('info_att')) {
+                const defaultAttendance = [
+                    { enrollment: "3060821045", subject: "Intro to Web Scripting", logged: "18 of 22 Sessions", percentage: "82%", present: true },
+                    { enrollment: "3060821045", subject: "Database Management Systems", logged: "10 of 12 Sessions", percentage: "83%", present: true },
+                    { enrollment: "3060821046", subject: "Intro to Web Scripting", logged: "20 of 22 Sessions", percentage: "90%", present: true }
+                ];
+                localStorage.setItem('info_att', JSON.stringify(defaultAttendance));
+            }
+            if (!localStorage.getItem('info_config_welcome')) {
+                localStorage.setItem('info_config_welcome', 'cait');
+            }
+        }
+        
+        initDatabase();
+
+        // Database Access Reference Arrays
+        const db_stuenroll = JSON.parse(localStorage.getItem('info_stu'));
+        const db_facultyuser = JSON.parse(localStorage.getItem('info_fac'));
+        const db_adminuser = [{ username: "admin", password: "adminpassword" }];
 
         const roles = document.querySelectorAll('input[name="role"]');
         const loginSubmitBtn = document.getElementById('loginSubmitBtn');
-
 
         roles.forEach(radio => {
             radio.addEventListener('change', (e) => {
@@ -170,9 +202,10 @@
             });
         });
 
-
         loginSubmitBtn.addEventListener('click', () => {
-            const selectedRole = document.querySelector('input[name="role"]:checked').value;
+            const roleOption = document.querySelector('input[name="role"]:checked');
+            if(!roleOption) return;
+            const selectedRole = roleOption.value;
 
             if (selectedRole === 'parent') {
                 const val = document.getElementById('parentInput').value;
@@ -190,8 +223,7 @@
             else if (selectedRole === 'student') {
                 const enrollInput = document.getElementById('studentEnroll').value;
                 const passInput = document.getElementById('studentPass').value;
-                const enrollNum = parseInt(enrollInput, 10);
-                //password of student 
+
                 if (enrollInput) {
                     const admissionYearDigits = enrollInput.substring(5, 7);
                     const expectedPass = "20" + admissionYearDigits;
@@ -220,6 +252,7 @@
 
                 if (valid) {
                     sessionStorage.setItem('flag', 'faculty login');
+                    sessionStorage.setItem('fetched_user', JSON.stringify(valid));
                     window.location.href = 'home.html';
                 } else {
                     alert("Invalid Faculty credentials.");
@@ -233,6 +266,7 @@
 
                 if (valid) {
                     sessionStorage.setItem('flag', 'admin login');
+                    sessionStorage.setItem('fetched_user', JSON.stringify({ name: "Administrator", role: "admin" }));
                     window.location.href = 'home.html';
                 } else {
                     alert("Invalid Administrator credentials.");
