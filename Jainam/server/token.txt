@@ -1,1 +1,0 @@
-ngrok token   3EmPcnvqdzA34cTdEWUqeVVJQeb_6kUHjz3PDH3m9GEiHo5wM
