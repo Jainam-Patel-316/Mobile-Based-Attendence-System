@@ -1,0 +1,14 @@
+type ngrok http 5000 in seprate terminal
+replace current ip with url that provided by ngrok
+
+then in app.js if below code is not there then add it
+
+Your Express server just needs to serve these HTML files. Add this one line to your app.js:
+
+jsconst path = require('path');
+app.use(express.static(path.join(__dirname)));
+
+
+Now when someone opens your ngrok URL, Express serves home.html or login.html directly.
+
+https://tyke-endorphin-triumph.ngrok-free.dev/login.html

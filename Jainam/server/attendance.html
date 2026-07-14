@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Portal - Unified Attendance Matrix</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+
+        .master-top-bar {
+            height: 64px; background-color: #002060;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 24px; position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .master-container { display: flex; min-height: 100vh; padding-top: 64px; background-color: #f8fafc; }
+        .master-sidebar {
+            width: 260px; background-color: #ffffff; border-right: 1px solid #e2e8f0;
+            display: flex; flex-direction: column; justify-content: space-between;
+            position: fixed; top: 64px; left: 0; bottom: 0; z-index: 40;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .master-main-content {
+            flex: 1; margin-left: 260px; padding: 40px 24px 100px 24px;
+            display: flex; justify-content: center; align-items: flex-start; min-width: 0;
+        }
+        .content-canvas-box { width: 100%; max-width: 1024px; }
+
+        @media (max-width: 768px) {
+            .master-sidebar { transform: translateX(-100%); top: 64px; height: calc(100vh - 64px); }
+            .master-sidebar.open { transform: translateX(0); }
+            .master-main-content { margin-left: 0; padding: 24px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="master-top-bar">
+        <div class="flex items-center gap-4">
+            <button id="menuBtn" class="md:hidden flex flex-col justify-between w-6 h-4.5 cursor-pointer">
+                <span class="h-0.5 w-full bg-white rounded-sm"></span>
+                <span class="h-0.5 w-full bg-white rounded-sm"></span>
+                <span class="h-0.5 w-full bg-white rounded-sm"></span>
+            </button>
+            <div class="text-white font-bold tracking-wide text-base">attendance</div>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full border-2 border-white/80 bg-slate-300/20 cursor-pointer hover:scale-105 transition" id="profileBtn" title="Go to Login"></div>
+        </div>
+    </header>
+
+    <div class="master-container">
+        <aside class="master-sidebar" id="sidebar">
+            <nav class="flex flex-col w-full" id="sidebarMenuContainer">
+                <button onclick="window.location.href='home.html'" class="w-full text-left px-6 py-4 font-bold text-slate-600 hover:bg-slate-50 hover:text-[#002060] border-b border-slate-100 transition cursor-pointer">HOME</button>
+                <button class="w-full text-left px-6 py-4 font-bold bg-slate-50 text-[#002060] border-l-4 border-[#002060] border-b border-slate-100 transition">ATTENDANCE</button>
+            </nav>
+            <button id="logoutBtn" class="w-full text-left px-6 py-4 font-bold text-rose-600 hover:bg-rose-50 border-t border-slate-100 transition cursor-pointer">Logout &rarr;</button>
+        </aside>
+
+        <div id="overlay" class="fixed inset-0 bg-slate-900/30 z-30 hidden md:hidden"></div>
+
+        <main class="master-main-content">
+            <div class="content-canvas-box">
+
+                <!-- STUDENT VIEW: attendance % per subject -->
+                <div id="studentViewPanel" class="hidden space-y-6">
+                    <h2 class="text-xl font-black text-slate-900 tracking-tight">My Attendance</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="studentCardsContainer"></div>
+                </div>
+
+                <!-- FACULTY VIEW: subject cards with "Launch Roll Call" -->
+                <div id="facultyViewPanel" class="hidden space-y-6">
+                    <h2 class="text-xl font-black text-slate-900 tracking-tight">Your Subjects</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="facultyCardsContainer"></div>
+                </div>
+
+                <!-- ROLL CALL SHEET: mark present / absent -->
+                <div id="attendanceSheetPanel" class="hidden space-y-6">
+                    <div class="bg-white border border-slate-200 rounded-xl p-8 shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                        <div class="space-y-1">
+                            <h2 id="activeSheetTitle" class="text-xl font-black text-slate-900 tracking-tight">Subject Name</h2>
+                            <p id="activeSheetMeta" class="text-xs font-mono text-[#002060] font-bold uppercase tracking-wider">SEC-II • Active Register</p>
+                        </div>
+                        <button onclick="exitActiveRollSheet()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-4 py-2 rounded-lg transition max-w-max cursor-pointer">
+                            ← Cancel Roll Sheet
+                        </button>
+                    </div>
+
+                    <!-- Session selector -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex gap-3 items-center">
+                        <label class="text-xs font-bold text-slate-500 uppercase">Session</label>
+                        <select id="sessionSelect" class="text-sm border border-slate-300 rounded-lg px-3 py-1.5 font-mono focus:outline-[#002060]">
+                            <option value="morning">Morning</option>
+                            <option value="afternoon">Afternoon</option>
+                        </select>
+                        <label class="text-xs font-bold text-slate-500 uppercase ml-4">Date</label>
+                        <input type="date" id="classDateInput" class="text-sm border border-slate-300 rounded-lg px-3 py-1.5 font-mono focus:outline-[#002060]">
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-50 border-b border-slate-200">
+                                <tr>
+                                    <th class="p-4 pl-6 text-xs font-bold uppercase text-slate-500 font-mono">Enrollment No.</th>
+                                    <th class="p-4 text-xs font-bold uppercase text-slate-500 font-mono">Name</th>
+                                    <th class="p-4 pr-6 text-xs font-bold uppercase text-slate-500 text-center w-32">Present</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceSheetTableBody" class="divide-y divide-slate-100 font-mono text-sm"></tbody>
+                        </table>
+                        <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+                            <span class="text-xs text-slate-400" id="saveStatusMsg"></span>
+                            <button onclick="commitAttendanceEntry()" id="saveBtn"
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-6 py-2.5 rounded-lg shadow-sm transition cursor-pointer">
+                                Save Session Attendance
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ─────────────────────────────────────────────
+        // API HELPER
+        // ─────────────────────────────────────────────
+        async function apiCall(method, endpoint, body = null) {
+            const token = sessionStorage.getItem('token');
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token && { 'Authorization': 'Bearer ' + token })
+                }
+            };
+            if (body) options.body = JSON.stringify(body);
+            const response = await fetch('https://tyke-endorphin-triumph.ngrok-free.dev'+endpoint, options);
+            const data = await response.json();
+            if (response.status === 401 || response.status === 403) {
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+                return;
+            }
+            return { ok: response.ok, data };
+        }
+
+        // ─────────────────────────────────────────────
+        // DOM REFS
+        // ─────────────────────────────────────────────
+        const menuBtn              = document.getElementById('menuBtn');
+        const sidebar              = document.getElementById('sidebar');
+        const overlay              = document.getElementById('overlay');
+        const studentViewPanel     = document.getElementById('studentViewPanel');
+        const facultyViewPanel     = document.getElementById('facultyViewPanel');
+        const attendanceSheetPanel = document.getElementById('attendanceSheetPanel');
+        const studentCardsContainer    = document.getElementById('studentCardsContainer');
+        const facultyCardsContainer    = document.getElementById('facultyCardsContainer');
+        const attendanceSheetTableBody = document.getElementById('attendanceSheetTableBody');
+
+        menuBtn.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.remove('hidden'); });
+        function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.add('hidden'); }
+        overlay.addEventListener('click', closeSidebar);
+        document.getElementById('profileBtn').addEventListener('click', () => window.location.href = 'login.html');
+
+        // Pre-fill date input with today
+        document.getElementById('classDateInput').value = new Date().toISOString().split('T')[0];
+
+        // ─────────────────────────────────────────────
+        // STUDENT VIEW — render per-subject cards
+        // ─────────────────────────────────────────────
+        function loadStudentData(subjects) {
+            if (!subjects.length) {
+                studentCardsContainer.innerHTML = `<p class="text-slate-400 col-span-3 text-sm">No subjects found for your semester.</p>`;
+                return;
+            }
+            studentCardsContainer.innerHTML = subjects.map(item => {
+                const pct = parseFloat(item.percentage) || 0;
+                const color = pct >= 75 ? 'text-emerald-600' : pct >= 60 ? 'text-amber-500' : 'text-rose-600';
+                return `
+                <div class="bg-white p-6 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs">
+                    <div class="mb-5">
+                        <span class="text-[10px] font-bold text-[#002060] bg-slate-50 px-2 py-0.5 rounded font-mono border border-slate-200/60">${item.subject_code || ''}</span>
+                        <h3 class="font-bold text-sm text-slate-800 mt-2.5 leading-snug">${item.subject_name}</h3>
+                    </div>
+                    <div class="p-4 bg-slate-50/70 border border-slate-100 rounded-lg flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Classes Attended</p>
+                            <p class="text-xs font-mono font-medium text-slate-500 mt-0.5">${item.classes_attended || 0} of ${item.classes_held || 0}</p>
+                        </div>
+                        <span class="text-lg font-black ${color}">${pct}%</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // ─────────────────────────────────────────────
+        // FACULTY VIEW — render subject cards
+        // ─────────────────────────────────────────────
+        function loadFacultyData(subjects) {
+            if (!subjects.length) {
+                facultyCardsContainer.innerHTML = `<p class="text-slate-400 col-span-3 text-sm">No subjects assigned to you yet.</p>`;
+                return;
+            }
+            facultyCardsContainer.innerHTML = subjects.map(item => `
+                <div class="bg-white p-6 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs">
+                    <div class="mb-5">
+                        <span class="text-[10px] font-bold text-[#002060] bg-slate-50 px-2 py-0.5 rounded font-mono border border-slate-200/60">${item.section || item.semester_name || ''}</span>
+                        <h3 class="font-bold text-sm text-slate-800 mt-2.5 leading-snug">${item.name}</h3>
+                        <p class="text-[10px] font-mono text-slate-400 mt-1">${item.code}</p>
+                    </div>
+                    <button onclick="launchRollCallSheet(${item.id}, '${item.name}', '${item.section || item.semester_name || ''}')"
+                        class="w-full bg-[#002060] hover:bg-[#001845] text-white text-xs font-semibold py-2.5 rounded-lg transition text-center cursor-pointer">
+                        Launch Roll Call Register
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // ─────────────────────────────────────────────
+        // ROLL CALL TABLE
+        // data: [{ id, enrollment_no, name }]
+        // ─────────────────────────────────────────────
+        function loadRosterData(students) {
+            if (!students.length) {
+                attendanceSheetTableBody.innerHTML = `<tr><td colspan="3" class="p-6 text-slate-400 text-sm text-center">No students found for this subject's semester.</td></tr>`;
+                return;
+            }
+            attendanceSheetTableBody.innerHTML = students.map(s => `
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="p-4 pl-6 font-semibold text-slate-700">${s.enrollment_no}</td>
+                    <td class="p-4 text-slate-600">${s.name}</td>
+                    <td class="p-4 pr-6 text-center">
+                        <input type="checkbox"
+                               data-student-id="${s.id}"
+                               data-roll="${s.enrollment_no}"
+                               class="w-4 h-4 accent-[#002060] cursor-pointer">
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ─────────────────────────────────────────────
+        // ROUTER — show the right panel based on role
+        // ─────────────────────────────────────────────
+        async function runFlagSwitchboardCheck() {
+            const flag = sessionStorage.getItem('flag');
+            studentViewPanel.classList.add('hidden');
+            facultyViewPanel.classList.add('hidden');
+            attendanceSheetPanel.classList.add('hidden');
+
+            if (flag === 'student login') {
+                const fetchedUserRaw = sessionStorage.getItem('fetched_user');
+                if (!fetchedUserRaw) {
+                    sessionStorage.clear();
+                    window.location.href = 'login.html';
+                    return;
+                }
+                const userId = JSON.parse(fetchedUserRaw).id;
+                const result = await apiCall('GET', '/api/attendance/student/' + userId);
+                if (result?.ok) loadStudentData(result.data.subjects);
+                else studentCardsContainer.innerHTML = `<p class="text-rose-500 text-sm">Failed to load attendance data.</p>`;
+                studentViewPanel.classList.remove('hidden');
+
+            } else if (flag === 'faculty login' || flag === 'admin login') {
+                const endpoint = flag === 'faculty login' ? '/api/faculty/subjects' : '/api/admin/subjects';
+                const result = await apiCall('GET', endpoint);
+                if (result?.ok) {
+                    const subjects = result.data.subjects || [];
+                    loadFacultyData(subjects);
+                } else {
+                    facultyCardsContainer.innerHTML = `<p class="text-rose-500 text-sm">Failed to load subjects.</p>`;
+                }
+                facultyViewPanel.classList.remove('hidden');
+
+            } else {
+                window.location.href = 'login.html';
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        // LAUNCH ROLL CALL — fetch student list for subject
+        // ─────────────────────────────────────────────
+        async function launchRollCallSheet(subjectId, subjectName, sectionName) {
+            window._activeSubjectId = subjectId;
+            document.getElementById('activeSheetTitle').innerText = subjectName;
+            document.getElementById('activeSheetMeta').innerText = `${sectionName} • Active Register`;
+            document.getElementById('saveStatusMsg').textContent = '';
+
+            attendanceSheetTableBody.innerHTML = `<tr><td colspan="3" class="p-6 text-slate-400 text-sm text-center">Loading students...</td></tr>`;
+            facultyViewPanel.classList.add('hidden');
+            attendanceSheetPanel.classList.remove('hidden');
+
+            const result = await apiCall('GET', '/api/faculty/students/' + subjectId);
+            if (result?.ok) {
+                loadRosterData(result.data.students);
+            } else {
+                attendanceSheetTableBody.innerHTML = `<tr><td colspan="3" class="p-6 text-rose-500 text-sm text-center">Failed to load student roster.</td></tr>`;
+            }
+        }
+
+        function exitActiveRollSheet() {
+            attendanceSheetPanel.classList.add('hidden');
+            facultyViewPanel.classList.remove('hidden');
+        }
+
+        // ─────────────────────────────────────────────
+        // SAVE ATTENDANCE — POST to /api/attendance/mark
+        // Payload: { subjectId, classDate, session, records: [{studentId, status}] }
+        // ─────────────────────────────────────────────
+        async function commitAttendanceEntry() {
+            const saveBtn   = document.getElementById('saveBtn');
+            const statusMsg = document.getElementById('saveStatusMsg');
+            const classDate = document.getElementById('classDateInput').value;
+            const session   = document.getElementById('sessionSelect').value;
+
+            if (!classDate) {
+                statusMsg.textContent = 'Please select a date.';
+                statusMsg.style.color = '#dc2626';
+                return;
+            }
+
+            const checkboxes = attendanceSheetTableBody.querySelectorAll('input[type="checkbox"]');
+            if (!checkboxes.length) {
+                statusMsg.textContent = 'No students loaded.';
+                return;
+            }
+
+            // Build records array: present if checked, absent if not
+            const records = Array.from(checkboxes).map(box => ({
+                studentId: parseInt(box.getAttribute('data-student-id')),
+                status: box.checked ? 'present' : 'absent'
+            }));
+
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+            statusMsg.textContent = '';
+            statusMsg.style.color = '#64748b';
+
+            const result = await apiCall('POST', '/api/attendance/mark', {
+                subjectId: window._activeSubjectId,
+                classDate,
+                session,
+                records
+            });
+
+            if (result?.ok) {
+                statusMsg.textContent = `✓ ${result.data.message}`;
+                statusMsg.style.color = '#16a34a';
+                saveBtn.textContent = 'Saved!';
+                saveBtn.style.background = '#16a34a';
+                setTimeout(() => {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Save Session Attendance';
+                    saveBtn.style.background = '';
+                    exitActiveRollSheet();
+                }, 1500);
+            } else {
+                statusMsg.textContent = '✗ ' + (result?.data?.error || 'Save failed. Try again.');
+                statusMsg.style.color = '#dc2626';
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Session Attendance';
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        // LOGOUT
+        // ─────────────────────────────────────────────
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        runFlagSwitchboardCheck();
+    </script>
+</body>
+</html>
